@@ -1,9 +1,9 @@
 import { api } from "@/lib/api";
 import { authUtils } from "@/lib/auth";
 import type {
+  LoginError,
   LoginRequest,
   LoginResponse,
-  LoginError,
   LogoutRequest,
   LogoutResponse,
 } from "@/types/auth";

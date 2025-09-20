@@ -1,9 +1,33 @@
 export const authUtils = {
-  setTokens(accessToken: string, refreshToken: string) {
+  async setTokens(accessToken: string, refreshToken: string) {
     if (typeof window !== "undefined") {
-      // Set cookies for middleware access
-      document.cookie = `access_token=${accessToken}; path=/; max-age=86400; SameSite=Lax`;
-      document.cookie = `refresh_token=${refreshToken}; path=/; max-age=2592000; SameSite=Lax`;
+      // Set cookies for middleware access using Cookie Store API with fallback
+      if ("cookieStore" in window) {
+        try {
+          await cookieStore.set({
+            name: "access_token",
+            value: accessToken,
+            path: "/",
+            maxAge: 86400,
+            sameSite: "lax",
+          });
+          await cookieStore.set({
+            name: "refresh_token",
+            value: refreshToken,
+            path: "/",
+            maxAge: 2592000,
+            sameSite: "lax",
+          });
+        } catch (_error) {
+          // Fallback to document.cookie if Cookie Store API fails
+          document.cookie = `access_token=${accessToken}; path=/; max-age=86400; SameSite=Lax`;
+          document.cookie = `refresh_token=${refreshToken}; path=/; max-age=2592000; SameSite=Lax`;
+        }
+      } else {
+        // Fallback for browsers without Cookie Store API support
+        document.cookie = `access_token=${accessToken}; path=/; max-age=86400; SameSite=Lax`;
+        document.cookie = `refresh_token=${refreshToken}; path=/; max-age=2592000; SameSite=Lax`;
+      }
 
       // Also keep localStorage for client-side access
       localStorage.setItem("access_token", accessToken);
@@ -29,11 +53,27 @@ export const authUtils = {
     return !!this.getAccessToken();
   },
 
-  clearAuth() {
+  async clearAuth() {
     if (typeof window !== "undefined") {
-      // Clear cookies
-      document.cookie = "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-      document.cookie = "refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      // Clear cookies using Cookie Store API with fallback
+      if ("cookieStore" in window) {
+        try {
+          await cookieStore.delete("access_token");
+          await cookieStore.delete("refresh_token");
+        } catch (_error) {
+          // Fallback to document.cookie if Cookie Store API fails
+          document.cookie =
+            "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+          document.cookie =
+            "refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        }
+      } else {
+        // Fallback for browsers without Cookie Store API support
+        document.cookie =
+          "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        document.cookie =
+          "refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      }
 
       // Clear localStorage
       localStorage.removeItem("access_token");

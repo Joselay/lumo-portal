@@ -1,7 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 import {
   IconCreditCard,
   IconDotsVertical,
@@ -9,6 +7,8 @@ import {
   IconNotification,
   IconUserCircle,
 } from "@tabler/icons-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 import { authApi } from "@/api/auth";
 
