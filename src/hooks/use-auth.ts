@@ -12,7 +12,7 @@ export const useLogin = () => {
       if (data.customer_profile) {
         localStorage.setItem(
           "customer_profile",
-          JSON.stringify(data.customer_profile)
+          JSON.stringify(data.customer_profile),
         );
       }
     },
