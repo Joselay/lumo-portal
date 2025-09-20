@@ -20,12 +20,16 @@ export const authUtils = {
           });
         } catch (_error) {
           // Fallback to document.cookie if Cookie Store API fails
+          // biome-ignore lint/suspicious/noDocumentCookie: Fallback for browsers without Cookie Store API support
           document.cookie = `access_token=${accessToken}; path=/; max-age=86400; SameSite=Lax`;
+          // biome-ignore lint/suspicious/noDocumentCookie: Fallback for browsers without Cookie Store API support
           document.cookie = `refresh_token=${refreshToken}; path=/; max-age=2592000; SameSite=Lax`;
         }
       } else {
         // Fallback for browsers without Cookie Store API support
+        // biome-ignore lint/suspicious/noDocumentCookie: Fallback for browsers without Cookie Store API support
         document.cookie = `access_token=${accessToken}; path=/; max-age=86400; SameSite=Lax`;
+        // biome-ignore lint/suspicious/noDocumentCookie: Fallback for browsers without Cookie Store API support
         document.cookie = `refresh_token=${refreshToken}; path=/; max-age=2592000; SameSite=Lax`;
       }
 
@@ -62,15 +66,19 @@ export const authUtils = {
           await cookieStore.delete("refresh_token");
         } catch (_error) {
           // Fallback to document.cookie if Cookie Store API fails
+          // biome-ignore lint/suspicious/noDocumentCookie: Fallback for browsers without Cookie Store API support
           document.cookie =
             "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+          // biome-ignore lint/suspicious/noDocumentCookie: Fallback for browsers without Cookie Store API support
           document.cookie =
             "refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
         }
       } else {
         // Fallback for browsers without Cookie Store API support
+        // biome-ignore lint/suspicious/noDocumentCookie: Fallback for browsers without Cookie Store API support
         document.cookie =
           "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        // biome-ignore lint/suspicious/noDocumentCookie: Fallback for browsers without Cookie Store API support
         document.cookie =
           "refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
       }
@@ -82,13 +90,13 @@ export const authUtils = {
     }
   },
 
-  setUserData(userData: any) {
+  setUserData(userData: Record<string, unknown>) {
     if (typeof window !== "undefined") {
       localStorage.setItem("user_data", JSON.stringify(userData));
     }
   },
 
-  getUserData(): any | null {
+  getUserData(): Record<string, unknown> | null {
     if (typeof window !== "undefined") {
       const userData = localStorage.getItem("user_data");
       return userData ? JSON.parse(userData) : null;
