@@ -22,6 +22,8 @@ Lumo Portal is a Next.js 15 application using React 19, TypeScript, and Tailwind
 - `src/components/ui/` - shadcn/ui components
 - `src/lib/` - Utility functions (primarily `utils.ts` with `cn` helper)
 - `src/hooks/` - Custom React hooks
+- `src/api/` - API layer with authentication endpoints
+- `src/types/` - TypeScript type definitions
 
 ### Core Dependencies
 - **UI Framework**: shadcn/ui components with Radix UI primitives
@@ -33,12 +35,21 @@ Lumo Portal is a Next.js 15 application using React 19, TypeScript, and Tailwind
 - **Tables**: @tanstack/react-table
 - **Notifications**: Sonner toasts
 - **Validation**: Zod
+- **State Management**: @tanstack/react-query for server state
+- **Drawer Component**: vaul for mobile-friendly drawers
 
 ### Important Configuration
 - **Linting/Formatting**: Uses Biome (not ESLint/Prettier)
 - **Theming**: Configured for system/dark/light themes via ThemeProvider
 - **Path Aliases**: `@/*` maps to `src/*`
 - **shadcn/ui**: Configured with "new-york" style, CSS variables, and custom Acme registry
+
+### Authentication Architecture
+- **Token Management**: Dual storage system using both localStorage and cookies
+- **Cookie Strategy**: Uses modern Cookie Store API with document.cookie fallback
+- **API Layer**: Centralized API client in `src/lib/api.ts` with automatic Bearer token injection
+- **Auth Utilities**: Authentication helpers in `src/lib/auth.ts` for token management
+- **Backend Integration**: Connects to external API via `NEXT_PUBLIC_BACKEND_URL` environment variable
 
 ### Application Flow
 - Root page (`/`) redirects to `/dashboard`
@@ -54,8 +65,17 @@ Lumo Portal is a Next.js 15 application using React 19, TypeScript, and Tailwind
 
 ## Development Notes
 
+### Code Quality & Formatting
 - Always use Biome for linting/formatting (not ESLint/Prettier)
+- Biome config includes Next.js and React domain rules
+- Automatic import organization enabled via Biome assist actions
+
+### UI Development
 - Follow shadcn/ui patterns for new UI components
 - Use the `cn()` utility from `@/lib/utils` for conditional styling
 - Leverage existing Radix UI components and patterns
 - Maintain the established theming system using CSS variables
+
+### Environment Setup
+- Requires `NEXT_PUBLIC_BACKEND_URL` environment variable for API connections
+- Uses Turbopack for faster development and build times
