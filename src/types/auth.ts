@@ -21,7 +21,6 @@ export interface CustomerProfile {
   phone_number: string;
   date_of_birth: string | null;
   preferred_language: string;
-  receive_marketing_emails: boolean;
   receive_booking_notifications: boolean;
   loyalty_points: number;
   created_at: string;
