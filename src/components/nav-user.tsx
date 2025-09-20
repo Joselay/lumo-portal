@@ -48,11 +48,9 @@ export function NavUser({
     setIsLoggingOut(true);
     try {
       await authApi.logout();
-      // Redirect to login page
       router.push("/login");
     } catch (error) {
       console.error("Logout failed:", error);
-      // Even if logout fails, redirect to login
       router.push("/login");
     } finally {
       setIsLoggingOut(false);

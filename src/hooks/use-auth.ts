@@ -6,19 +6,17 @@ export const useLogin = () => {
   return useMutation<LoginResponse, Error, LoginRequest>({
     mutationFn: authApi.login,
     onSuccess: (data) => {
-      // Store tokens in localStorage or handle them as needed
       localStorage.setItem("access_token", data.access_token);
       localStorage.setItem("refresh_token", data.refresh_token);
       localStorage.setItem("user", JSON.stringify(data.user));
       if (data.customer_profile) {
         localStorage.setItem(
           "customer_profile",
-          JSON.stringify(data.customer_profile),
+          JSON.stringify(data.customer_profile)
         );
       }
     },
     onError: (error) => {
-      // Parse error message if it's JSON
       try {
         const errorData: LoginError = JSON.parse(error.message);
         console.error("Login error:", errorData);
