@@ -38,3 +38,11 @@ export interface LoginError {
   email?: string[];
   password?: string[];
 }
+
+export interface LogoutRequest {
+  refresh_token?: string;
+}
+
+export interface LogoutResponse {
+  message: string;
+}

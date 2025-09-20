@@ -11,7 +11,10 @@ export const useLogin = () => {
       localStorage.setItem("refresh_token", data.refresh_token);
       localStorage.setItem("user", JSON.stringify(data.user));
       if (data.customer_profile) {
-        localStorage.setItem("customer_profile", JSON.stringify(data.customer_profile));
+        localStorage.setItem(
+          "customer_profile",
+          JSON.stringify(data.customer_profile),
+        );
       }
     },
     onError: (error) => {

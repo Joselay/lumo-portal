@@ -1,56 +1,51 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { IconInnerShadowTop, IconLoader2 } from "@tabler/icons-react"
-import { useLogin } from "@/hooks/use-auth"
-import { toast } from "sonner"
-import type { LoginError } from "@/types/auth"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { IconInnerShadowTop, IconLoader2 } from "@tabler/icons-react";
+import { useLogin } from "@/hooks/use-auth";
+import { toast } from "sonner";
+import type { LoginError } from "@/types/auth";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const router = useRouter()
-  const loginMutation = useLogin()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const router = useRouter();
+  const loginMutation = useLogin();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!email || !password) {
-      toast.error("Please fill in all fields")
-      return
+      toast.error("Please fill in all fields");
+      return;
     }
 
     try {
-      await loginMutation.mutateAsync({ email, password })
-      toast.success("Login successful!")
-      router.push("/dashboard")
+      await loginMutation.mutateAsync({ email, password });
+      toast.success("Login successful!");
+      router.push("/dashboard");
     } catch (error) {
-      const loginError = error as LoginError
+      const loginError = error as LoginError;
       if (loginError.non_field_errors) {
-        toast.error(loginError.non_field_errors[0])
+        toast.error(loginError.non_field_errors[0]);
       } else if (loginError.email) {
-        toast.error(`Email: ${loginError.email[0]}`)
+        toast.error(`Email: ${loginError.email[0]}`);
       } else if (loginError.password) {
-        toast.error(`Password: ${loginError.password[0]}`)
+        toast.error(`Password: ${loginError.password[0]}`);
       } else {
-        toast.error("Login failed. Please try again.")
+        toast.error("Login failed. Please try again.");
       }
     }
-  }
+  };
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -106,5 +101,5 @@ export function LoginForm({
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

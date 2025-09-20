@@ -1,5 +1,12 @@
 import { api } from "@/lib/api";
-import type { LoginRequest, LoginResponse, LoginError } from "@/types/auth";
+import { authUtils } from "@/lib/auth";
+import type {
+  LoginRequest,
+  LoginResponse,
+  LoginError,
+  LogoutRequest,
+  LogoutResponse,
+} from "@/types/auth";
 
 export const authApi = {
   async login(credentials: LoginRequest): Promise<LoginResponse> {
@@ -13,6 +20,24 @@ export const authApi = {
         errorData = { non_field_errors: [error as string] };
       }
       throw errorData;
+    }
+  },
+
+  async logout(logoutData?: LogoutRequest): Promise<LogoutResponse> {
+    try {
+      const refreshToken =
+        logoutData?.refresh_token || authUtils.getRefreshToken();
+
+      const response = await api.post<LogoutResponse>("/auth/logout/", {
+        refresh_token: refreshToken,
+      });
+
+      authUtils.clearAuth();
+
+      return response;
+    } catch (error) {
+      authUtils.clearAuth();
+      throw error;
     }
   },
 };

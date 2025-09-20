@@ -1,4 +1,4 @@
-import { LoginForm } from "@/components/login-form"
+import { LoginForm } from "@/components/login-form";
 
 export default function LoginPage() {
   return (
@@ -12,5 +12,5 @@ export default function LoginPage() {
         © 2025 Lumo Portal. All rights reserved.
       </div>
     </div>
-  )
+  );
 }
