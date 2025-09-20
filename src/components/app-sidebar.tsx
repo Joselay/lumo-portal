@@ -42,11 +42,6 @@ const data = {
   },
   navMain: [
     {
-      title: "Dashboard",
-      url: "#",
-      icon: IconDashboard,
-    },
-    {
       title: "Lifecycle",
       url: "#",
       icon: IconListDetails,
