@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,7 +17,6 @@ export function LoginForm({
 }: React.ComponentProps<"div">) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const router = useRouter();
   const loginMutation = useLogin();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -32,7 +30,8 @@ export function LoginForm({
     try {
       await loginMutation.mutateAsync({ email, password });
       toast.success("Login successful!");
-      router.push("/dashboard");
+      // Use window.location.href to ensure middleware runs on the next request
+      window.location.href = "/dashboard";
     } catch (error) {
       const loginError = error as LoginError;
       if (loginError.non_field_errors) {

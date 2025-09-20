@@ -1,6 +1,11 @@
 export const authUtils = {
   setTokens(accessToken: string, refreshToken: string) {
     if (typeof window !== "undefined") {
+      // Set cookies for middleware access
+      document.cookie = `access_token=${accessToken}; path=/; max-age=86400; SameSite=Lax`;
+      document.cookie = `refresh_token=${refreshToken}; path=/; max-age=2592000; SameSite=Lax`;
+
+      // Also keep localStorage for client-side access
       localStorage.setItem("access_token", accessToken);
       localStorage.setItem("refresh_token", refreshToken);
     }
@@ -26,6 +31,11 @@ export const authUtils = {
 
   clearAuth() {
     if (typeof window !== "undefined") {
+      // Clear cookies
+      document.cookie = "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      document.cookie = "refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+
+      // Clear localStorage
       localStorage.removeItem("access_token");
       localStorage.removeItem("refresh_token");
       localStorage.removeItem("user_data");
