@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  IconCalendar,
   IconCamera,
   IconChartBar,
   IconDashboard,
@@ -12,9 +13,12 @@ import {
   IconHelp,
   IconInnerShadowTop,
   IconListDetails,
+  IconMovie,
   IconReport,
   IconSearch,
   IconSettings,
+  IconShoppingCart,
+  IconTags,
   IconUsers,
 } from "@tabler/icons-react";
 import Link from "next/link";
@@ -42,24 +46,24 @@ const data = {
   },
   navMain: [
     {
-      title: "Lifecycle",
-      url: "#",
-      icon: IconListDetails,
+      title: "Movies",
+      url: "/movies",
+      icon: IconMovie,
     },
     {
-      title: "Analytics",
-      url: "#",
-      icon: IconChartBar,
-    },
-    {
-      title: "Projects",
-      url: "#",
-      icon: IconFolder,
-    },
-    {
-      title: "Team",
-      url: "#",
+      title: "Users",
+      url: "/users",
       icon: IconUsers,
+    },
+    {
+      title: "Genres",
+      url: "/genres",
+      icon: IconTags,
+    },
+    {
+      title: "Bookings",
+      url: "/bookings",
+      icon: IconCalendar,
     },
   ],
   navClouds: [
