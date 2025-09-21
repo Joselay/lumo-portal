@@ -139,19 +139,6 @@ export default function MoviesPage() {
 
   return (
     <div className="px-4 lg:px-6">
-      <div className="mb-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Movies</h1>
-            <p className="text-muted-foreground mt-2">
-              Manage your movie collection and catalog
-            </p>
-          </div>
-          <div className="text-sm text-muted-foreground">
-            {totalCount} movies total
-          </div>
-        </div>
-      </div>
       {/* Search and Filter Section */}
       <div className="flex flex-col md:flex-row gap-4 mb-6">
         <form onSubmit={handleSearch} className="flex gap-2 flex-1">
