@@ -1,8 +1,5 @@
 "use client";
 
-import Image from "next/image";
-import { Suspense, useEffect, useMemo, useState } from "react";
-import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import {
   IconChevronLeft,
   IconChevronRight,
@@ -10,8 +7,12 @@ import {
   IconChevronsRight,
   IconPlayerPlay,
 } from "@tabler/icons-react";
+import Image from "next/image";
+import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -49,6 +50,7 @@ function MoviesContent() {
   );
 
   const [searchQuery, setSearchQuery] = useState(search);
+  const [selectedMovies, setSelectedMovies] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     setSearchQuery(search);
@@ -95,6 +97,31 @@ function MoviesContent() {
   const canPreviousPage = hasPrevious;
   const canNextPage = hasNext;
 
+  const toggleMovieSelection = (movieId: string) => {
+    setSelectedMovies((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(movieId)) {
+        newSet.delete(movieId);
+      } else {
+        newSet.add(movieId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleAllMoviesSelection = () => {
+    if (selectedMovies.size === movies.length && movies.length > 0) {
+      setSelectedMovies(new Set());
+    } else {
+      setSelectedMovies(new Set(movies.map((movie) => movie.id)));
+    }
+  };
+
+  const isAllSelected =
+    selectedMovies.size === movies.length && movies.length > 0;
+  const isSomeSelected =
+    selectedMovies.size > 0 && selectedMovies.size < movies.length;
+
   if (error) {
     return (
       <div className="px-4 lg:px-6">
@@ -126,6 +153,7 @@ function MoviesContent() {
             <Table>
               <TableHeader className="bg-muted sticky top-0 z-10">
                 <TableRow>
+                  <TableHead className="w-12">Select</TableHead>
                   <TableHead className="w-16">Poster</TableHead>
                   <TableHead>Title</TableHead>
                   <TableHead>Description</TableHead>
@@ -142,6 +170,9 @@ function MoviesContent() {
               <TableBody>
                 {Array.from({ length: 10 }, (_, i) => (
                   <TableRow key={`loading-skeleton-${i}`}>
+                    <TableCell>
+                      <Skeleton className="h-4 w-4" />
+                    </TableCell>
                     <TableCell>
                       <Skeleton className="h-12 w-12" />
                     </TableCell>
@@ -210,6 +241,17 @@ function MoviesContent() {
         <Table>
           <TableHeader className="bg-muted sticky top-0 z-10">
             <TableRow>
+              <TableHead className="w-12">
+                <div className="flex items-center justify-center">
+                  <Checkbox
+                    checked={
+                      isAllSelected || (isSomeSelected && "indeterminate")
+                    }
+                    onCheckedChange={toggleAllMoviesSelection}
+                    aria-label="Select all movies"
+                  />
+                </div>
+              </TableHead>
               <TableHead className="w-16">Poster</TableHead>
               <TableHead>Title</TableHead>
               <TableHead>Description</TableHead>
@@ -225,6 +267,9 @@ function MoviesContent() {
             {isLoading ? (
               Array.from({ length: 10 }, (_, i) => (
                 <TableRow key={`content-skeleton-${i}`}>
+                  <TableCell>
+                    <Skeleton className="h-4 w-4" />
+                  </TableCell>
                   <TableCell>
                     <Skeleton className="h-12 w-12" />
                   </TableCell>
@@ -254,7 +299,7 @@ function MoviesContent() {
             ) : movies.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={9}
+                  colSpan={10}
                   className="text-center py-8 text-muted-foreground"
                 >
                   No movies found
@@ -265,7 +310,19 @@ function MoviesContent() {
                 <TableRow
                   key={movie.id}
                   className="hover:bg-muted/50 transition-colors"
+                  data-state={
+                    selectedMovies.has(movie.id) ? "selected" : undefined
+                  }
                 >
+                  <TableCell>
+                    <div className="flex items-center justify-center">
+                      <Checkbox
+                        checked={selectedMovies.has(movie.id)}
+                        onCheckedChange={() => toggleMovieSelection(movie.id)}
+                        aria-label={`Select ${movie.title}`}
+                      />
+                    </div>
+                  </TableCell>
                   <TableCell>
                     <div className="w-12 h-12 bg-muted rounded flex items-center justify-center overflow-hidden">
                       {movie.poster_image ? (
@@ -364,8 +421,17 @@ function MoviesContent() {
       {totalCount > 0 && (
         <div className="flex items-center justify-between px-4 mt-4">
           <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
-            Showing {(page - 1) * pageSize + 1} to{" "}
-            {Math.min(page * pageSize, totalCount)} of {totalCount} movie(s).
+            {selectedMovies.size > 0 ? (
+              <span>
+                {selectedMovies.size} of {totalCount} movie(s) selected.
+              </span>
+            ) : (
+              <span>
+                Showing {(page - 1) * pageSize + 1} to{" "}
+                {Math.min(page * pageSize, totalCount)} of {totalCount}{" "}
+                movie(s).
+              </span>
+            )}
           </div>
           <div className="flex w-full items-center gap-8 lg:w-fit">
             <div className="hidden items-center gap-2 lg:flex">
@@ -457,6 +523,7 @@ export default function MoviesPage() {
               <Table>
                 <TableHeader className="bg-muted sticky top-0 z-10">
                   <TableRow>
+                    <TableHead className="w-12">Select</TableHead>
                     <TableHead className="w-16">Poster</TableHead>
                     <TableHead>Title</TableHead>
                     <TableHead>Description</TableHead>
@@ -471,6 +538,9 @@ export default function MoviesPage() {
                 <TableBody>
                   {Array.from({ length: 10 }, (_, i) => (
                     <TableRow key={`suspense-skeleton-${i}`}>
+                      <TableCell>
+                        <div className="h-4 w-4 bg-muted animate-pulse rounded" />
+                      </TableCell>
                       <TableCell>
                         <div className="h-12 w-12 bg-muted animate-pulse rounded" />
                       </TableCell>
