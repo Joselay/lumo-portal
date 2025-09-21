@@ -5,6 +5,7 @@ import {
   IconChevronRight,
   IconChevronsLeft,
   IconChevronsRight,
+  IconDotsVertical,
   IconPlayerPlay,
 } from "@tabler/icons-react";
 import Image from "next/image";
@@ -13,6 +14,13 @@ import { Suspense, useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -193,13 +201,14 @@ function MoviesContent() {
               <TableHead className="w-16">Trailer</TableHead>
               <TableHead>Genres</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead className="w-16"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {movies.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={10}
+                  colSpan={11}
                   className="text-center py-8 text-muted-foreground"
                 >
                   No movies found
@@ -310,6 +319,27 @@ function MoviesContent() {
                     <Badge variant="outline" className="text-xs">
                       Active
                     </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+                          size="icon"
+                        >
+                          <IconDotsVertical />
+                          <span className="sr-only">Open menu</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-32">
+                        <DropdownMenuItem>Edit</DropdownMenuItem>
+                        <DropdownMenuItem>Make a copy</DropdownMenuItem>
+                        <DropdownMenuItem>Favorite</DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))
