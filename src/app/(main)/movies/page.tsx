@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import React, { useMemo, useState } from "react";
+import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import {
   IconChevronLeft,
   IconChevronRight,
@@ -32,12 +33,35 @@ import { useMovies } from "@/hooks/use-movies";
 import type { MovieFilters } from "@/types/movies";
 
 export default function MoviesPage() {
-  const [filters, setFilters] = useState<MovieFilters>({
-    ordering: "-release_date",
-    page: 1,
-    page_size: 10,
-  });
-  const [searchQuery, setSearchQuery] = useState("");
+  const [search, setSearch] = useQueryState(
+    "search",
+    parseAsString.withDefault("")
+  );
+  const [ordering, setOrdering] = useQueryState(
+    "ordering",
+    parseAsString.withDefault("-release_date")
+  );
+  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
+  const [pageSize, setPageSize] = useQueryState(
+    "page_size",
+    parseAsInteger.withDefault(10)
+  );
+
+  const [searchQuery, setSearchQuery] = useState(search);
+
+  React.useEffect(() => {
+    setSearchQuery(search);
+  }, [search]);
+
+  const filters = useMemo<MovieFilters>(
+    () => ({
+      search: search || undefined,
+      ordering: ordering as MovieFilters["ordering"],
+      page,
+      page_size: pageSize,
+    }),
+    [search, ordering, page, pageSize]
+  );
 
   const { data: moviesData, isLoading, error } = useMovies(filters);
 
@@ -45,38 +69,26 @@ export default function MoviesPage() {
   const totalCount = moviesData?.count || 0;
   const hasNext = !!moviesData?.next;
   const hasPrevious = !!moviesData?.previous;
-
-  const currentPage = filters.page || 1;
-  const pageSize = filters.page_size || 10;
   const totalPages = Math.ceil(totalCount / pageSize);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    const newFilters = { ...filters, search: searchQuery, page: 1 };
-    setFilters(newFilters);
+    setSearch(searchQuery);
+    setPage(1);
   };
 
-  const handleOrderingChange = (ordering: string) => {
-    const newFilters = {
-      ...filters,
-      ordering: ordering as MovieFilters["ordering"],
-      page: 1,
-    };
-    setFilters(newFilters);
+  const handleOrderingChange = (newOrdering: string) => {
+    setOrdering(newOrdering);
+    setPage(1);
   };
 
-  const handlePageSizeChange = (pageSize: string) => {
-    const newFilters = {
-      ...filters,
-      page_size: Number(pageSize),
-      page: 1,
-    };
-    setFilters(newFilters);
+  const handlePageSizeChange = (newPageSize: string) => {
+    setPageSize(Number(newPageSize));
+    setPage(1);
   };
 
-  const handlePageChange = (page: number) => {
-    const newFilters = { ...filters, page };
-    setFilters(newFilters);
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
   };
 
   const canPreviousPage = hasPrevious;
@@ -162,7 +174,6 @@ export default function MoviesPage() {
 
   return (
     <div className="px-4 lg:px-6">
-      {/* Search and Filter Section */}
       <div className="flex flex-col md:flex-row gap-4 mb-6">
         <form onSubmit={handleSearch} className="flex gap-2 flex-1">
           <Input
@@ -173,10 +184,7 @@ export default function MoviesPage() {
           />
           <Button type="submit">Search</Button>
         </form>
-        <Select
-          value={filters.ordering || "-release_date"}
-          onValueChange={handleOrderingChange}
-        >
+        <Select value={ordering} onValueChange={handleOrderingChange}>
           <SelectTrigger className="w-48">
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
@@ -191,7 +199,6 @@ export default function MoviesPage() {
         </Select>
       </div>
 
-      {/* Movies Table */}
       <div className="border rounded-lg">
         <Table>
           <TableHeader>
@@ -325,12 +332,11 @@ export default function MoviesPage() {
         </Table>
       </div>
 
-      {/* Enhanced Pagination */}
       {totalCount > 0 && (
         <div className="flex items-center justify-between px-4 mt-6">
           <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
-            Showing {((currentPage - 1) * pageSize) + 1} to{" "}
-            {Math.min(currentPage * pageSize, totalCount)} of {totalCount} movie(s).
+            Showing {(page - 1) * pageSize + 1} to{" "}
+            {Math.min(page * pageSize, totalCount)} of {totalCount} movie(s).
           </div>
           <div className="flex w-full items-center gap-8 lg:w-fit">
             <div className="hidden items-center gap-2 lg:flex">
@@ -354,7 +360,7 @@ export default function MoviesPage() {
               </Select>
             </div>
             <div className="flex w-fit items-center justify-center text-sm font-medium">
-              Page {currentPage} of {totalPages}
+              Page {page} of {totalPages}
             </div>
             <div className="ml-auto flex items-center gap-2 lg:ml-0">
               <Button
@@ -370,7 +376,7 @@ export default function MoviesPage() {
                 variant="outline"
                 className="size-8"
                 size="icon"
-                onClick={() => handlePageChange(currentPage - 1)}
+                onClick={() => handlePageChange(page - 1)}
                 disabled={!canPreviousPage}
               >
                 <span className="sr-only">Go to previous page</span>
@@ -380,7 +386,7 @@ export default function MoviesPage() {
                 variant="outline"
                 className="size-8"
                 size="icon"
-                onClick={() => handlePageChange(currentPage + 1)}
+                onClick={() => handlePageChange(page + 1)}
                 disabled={!canNextPage}
               >
                 <span className="sr-only">Go to next page</span>
