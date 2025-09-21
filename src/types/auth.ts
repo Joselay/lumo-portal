@@ -49,7 +49,6 @@ export interface LogoutResponse {
   message: string;
 }
 
-export interface ProfileResponse {
-  user: User;
+export interface ProfileResponse extends User {
   customer_profile: CustomerProfile | null;
 }

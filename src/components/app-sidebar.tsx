@@ -17,10 +17,8 @@ import {
   IconUsers,
 } from "@tabler/icons-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import type * as React from "react";
 
-import { authApi } from "@/api/auth";
 import { NavDocuments } from "@/components/nav-documents";
 import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
@@ -34,7 +32,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import type { User, CustomerProfile } from "@/types/auth";
+import { useProfile } from "@/hooks/use-profile";
 
 const data = {
   navMain: [
@@ -144,41 +142,13 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const [user, setUser] = useState<User | null>(null);
-  const [customerProfile, setCustomerProfile] =
-    useState<CustomerProfile | null>(null);
-  const [_isLoading, setIsLoading] = useState(true);
+  const { data: profileData } = useProfile();
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const profileData = await authApi.getProfile();
-        setUser(profileData.user);
-        setCustomerProfile(profileData.customer_profile);
-      } catch (error) {
-        console.error("Failed to fetch profile:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchProfile();
-  }, []);
-
-  const userData = user
-    ? {
-        name:
-          customerProfile?.full_name ||
-          `${user.first_name} ${user.last_name}`.trim() ||
-          user.username,
-        email: user.email,
-        avatar: customerProfile?.avatar_url || "/avatars/default.jpg",
-      }
-    : {
-        name: "Loading...",
-        email: "",
-        avatar: "/avatars/default.jpg",
-      };
+  const userData = {
+    name: profileData?.username,
+    email: profileData?.email,
+    avatar: profileData?.customer_profile?.avatar_url,
+  };
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>
