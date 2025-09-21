@@ -8,14 +8,14 @@ export const authUtils = {
             name: "access_token",
             value: accessToken,
             path: "/",
-            maxAge: 86400,
+            expires: Date.now() + 86400 * 1000,
             sameSite: "lax",
           });
           await cookieStore.set({
             name: "refresh_token",
             value: refreshToken,
             path: "/",
-            maxAge: 2592000,
+            expires: Date.now() + 2592000 * 1000,
             sameSite: "lax",
           });
         } catch (_error) {

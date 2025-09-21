@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import {
   IconChevronLeft,
@@ -33,7 +33,7 @@ import {
 import { useMovies } from "@/hooks/use-movies";
 import type { MovieFilters } from "@/types/movies";
 
-export default function MoviesPage() {
+function MoviesContent() {
   const [search, setSearch] = useQueryState(
     "search",
     parseAsString.withDefault(""),
@@ -436,5 +436,78 @@ export default function MoviesPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function MoviesPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="px-4 lg:px-6">
+          <div className="mb-6">
+            <div className="h-8 w-48 mb-2 bg-muted animate-pulse rounded" />
+            <div className="h-4 w-96 bg-muted animate-pulse rounded" />
+          </div>
+          <div className="space-y-4">
+            <div className="flex gap-4">
+              <div className="h-10 flex-1 bg-muted animate-pulse rounded" />
+              <div className="h-10 w-48 bg-muted animate-pulse rounded" />
+            </div>
+            <div className="border rounded-lg">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-16">Poster</TableHead>
+                    <TableHead>Title</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Duration</TableHead>
+                    <TableHead>Release Date</TableHead>
+                    <TableHead>Rating</TableHead>
+                    <TableHead className="w-16">Trailer</TableHead>
+                    <TableHead>Genres</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {Array.from({ length: 10 }, (_, i) => (
+                    <TableRow key={`suspense-skeleton-${i}`}>
+                      <TableCell>
+                        <div className="h-12 w-12 bg-muted animate-pulse rounded" />
+                      </TableCell>
+                      <TableCell>
+                        <div className="h-4 w-32 bg-muted animate-pulse rounded" />
+                      </TableCell>
+                      <TableCell>
+                        <div className="h-4 w-48 bg-muted animate-pulse rounded" />
+                      </TableCell>
+                      <TableCell>
+                        <div className="h-4 w-16 bg-muted animate-pulse rounded" />
+                      </TableCell>
+                      <TableCell>
+                        <div className="h-4 w-20 bg-muted animate-pulse rounded" />
+                      </TableCell>
+                      <TableCell>
+                        <div className="h-4 w-12 bg-muted animate-pulse rounded" />
+                      </TableCell>
+                      <TableCell>
+                        <div className="h-4 w-16 bg-muted animate-pulse rounded" />
+                      </TableCell>
+                      <TableCell>
+                        <div className="h-4 w-24 bg-muted animate-pulse rounded" />
+                      </TableCell>
+                      <TableCell>
+                        <div className="h-4 w-16 bg-muted animate-pulse rounded" />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <MoviesContent />
+    </Suspense>
   );
 }

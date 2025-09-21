@@ -89,7 +89,7 @@ function SidebarProvider({
               name: SIDEBAR_COOKIE_NAME,
               value: String(openState),
               path: "/",
-              maxAge: SIDEBAR_COOKIE_MAX_AGE,
+              expires: Date.now() + SIDEBAR_COOKIE_MAX_AGE * 1000,
             });
           } catch (_error) {
             // Fallback to document.cookie if Cookie Store API fails
