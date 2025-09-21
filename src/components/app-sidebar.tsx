@@ -3,27 +3,24 @@
 import {
   IconCalendar,
   IconCamera,
-  IconChartBar,
-  IconDashboard,
   IconDatabase,
   IconFileAi,
   IconFileDescription,
   IconFileWord,
-  IconFolder,
   IconHelp,
   IconInnerShadowTop,
-  IconListDetails,
   IconMovie,
   IconReport,
   IconSearch,
   IconSettings,
-  IconShoppingCart,
   IconTags,
   IconUsers,
 } from "@tabler/icons-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import type * as React from "react";
 
+import { authApi } from "@/api/auth";
 import { NavDocuments } from "@/components/nav-documents";
 import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
@@ -37,13 +34,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import type { User, CustomerProfile } from "@/types/auth";
 
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   navMain: [
     {
       title: "Movies",
@@ -151,6 +144,42 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const [user, setUser] = useState<User | null>(null);
+  const [customerProfile, setCustomerProfile] =
+    useState<CustomerProfile | null>(null);
+  const [_isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const profileData = await authApi.getProfile();
+        setUser(profileData.user);
+        setCustomerProfile(profileData.customer_profile);
+      } catch (error) {
+        console.error("Failed to fetch profile:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  const userData = user
+    ? {
+        name:
+          customerProfile?.full_name ||
+          `${user.first_name} ${user.last_name}`.trim() ||
+          user.username,
+        email: user.email,
+        avatar: customerProfile?.avatar_url || "/avatars/default.jpg",
+      }
+    : {
+        name: "Loading...",
+        email: "",
+        avatar: "/avatars/default.jpg",
+      };
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -174,7 +203,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={userData} />
       </SidebarFooter>
     </Sidebar>
   );

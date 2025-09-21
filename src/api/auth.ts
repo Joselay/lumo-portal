@@ -6,6 +6,7 @@ import type {
   LoginResponse,
   LogoutRequest,
   LogoutResponse,
+  ProfileResponse,
 } from "@/types/auth";
 
 export const authApi = {
@@ -39,5 +40,9 @@ export const authApi = {
       authUtils.clearAuth();
       throw error;
     }
+  },
+
+  async getProfile(): Promise<ProfileResponse> {
+    return await api.get<ProfileResponse>("/api/v1/auth/profile/");
   },
 };

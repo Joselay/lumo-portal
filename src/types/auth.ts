@@ -11,6 +11,7 @@ export interface User {
   last_name: string;
   role: "customer" | "admin";
   is_admin: boolean;
+  date_joined: string;
 }
 
 export interface CustomerProfile {
@@ -46,4 +47,9 @@ export interface LogoutRequest {
 
 export interface LogoutResponse {
   message: string;
+}
+
+export interface ProfileResponse {
+  user: User;
+  customer_profile: CustomerProfile | null;
 }
