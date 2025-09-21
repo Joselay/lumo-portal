@@ -122,9 +122,9 @@ function MoviesContent() {
             <Skeleton className="h-10 flex-1" />
             <Skeleton className="h-10 w-48" />
           </div>
-          <div className="border rounded-lg">
+          <div className="overflow-hidden rounded-lg border">
             <Table>
-              <TableHeader>
+              <TableHeader className="bg-muted sticky top-0 z-10">
                 <TableRow>
                   <TableHead className="w-16">Poster</TableHead>
                   <TableHead>Title</TableHead>
@@ -181,7 +181,7 @@ function MoviesContent() {
 
   return (
     <div className="px-4 lg:px-6">
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
+      <div className="flex flex-col md:flex-row gap-4 mb-4">
         <form onSubmit={handleSearch} className="flex gap-2 flex-1">
           <Input
             placeholder="Search movies..."
@@ -206,9 +206,9 @@ function MoviesContent() {
         </Select>
       </div>
 
-      <div className="border rounded-lg">
+      <div className="overflow-hidden rounded-lg border">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-muted sticky top-0 z-10">
             <TableRow>
               <TableHead className="w-16">Poster</TableHead>
               <TableHead>Title</TableHead>
@@ -362,7 +362,7 @@ function MoviesContent() {
       </div>
 
       {totalCount > 0 && (
-        <div className="flex items-center justify-between px-4 mt-6">
+        <div className="flex items-center justify-between px-4 mt-4">
           <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
             Showing {(page - 1) * pageSize + 1} to{" "}
             {Math.min(page * pageSize, totalCount)} of {totalCount} movie(s).
@@ -370,7 +370,7 @@ function MoviesContent() {
           <div className="flex w-full items-center gap-8 lg:w-fit">
             <div className="hidden items-center gap-2 lg:flex">
               <Label htmlFor="rows-per-page" className="text-sm font-medium">
-                Movies per page
+                Rows per page
               </Label>
               <Select
                 value={`${pageSize}`}
@@ -453,9 +453,9 @@ export default function MoviesPage() {
               <div className="h-10 flex-1 bg-muted animate-pulse rounded" />
               <div className="h-10 w-48 bg-muted animate-pulse rounded" />
             </div>
-            <div className="border rounded-lg">
+            <div className="overflow-hidden rounded-lg border">
               <Table>
-                <TableHeader>
+                <TableHeader className="bg-muted sticky top-0 z-10">
                   <TableRow>
                     <TableHead className="w-16">Poster</TableHead>
                     <TableHead>Title</TableHead>
