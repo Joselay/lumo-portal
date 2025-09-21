@@ -43,6 +43,6 @@ export const authApi = {
   },
 
   async getProfile(): Promise<ProfileResponse> {
-    return await api.get<ProfileResponse>("/api/v1/auth/profile/");
+    return await api.get<ProfileResponse>("/auth/profile/");
   },
 };
