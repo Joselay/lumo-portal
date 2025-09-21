@@ -23,6 +23,7 @@ export interface CustomerProfile {
   preferred_language: string;
   receive_booking_notifications: boolean;
   loyalty_points: number;
+  avatar_url: string | null;
   created_at: string;
 }
 
