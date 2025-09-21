@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import React, { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import {
   IconChevronLeft,
@@ -49,7 +49,7 @@ export default function MoviesPage() {
 
   const [searchQuery, setSearchQuery] = useState(search);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setSearchQuery(search);
   }, [search]);
 
