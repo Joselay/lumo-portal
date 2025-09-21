@@ -142,7 +142,7 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { data: profileData } = useProfile();
+  const { data: profileData, isLoading } = useProfile();
 
   const userData = {
     name: profileData?.username,
@@ -173,7 +173,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={userData} />
+        <NavUser user={userData} isLoading={isLoading} />
       </SidebarFooter>
     </Sidebar>
   );
