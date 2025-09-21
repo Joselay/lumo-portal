@@ -34,4 +34,5 @@ export interface MovieFilters {
     | "title"
     | "-title";
   page?: number;
+  page_size?: number;
 }

@@ -2,9 +2,16 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import {
+  IconChevronLeft,
+  IconChevronRight,
+  IconChevronsLeft,
+  IconChevronsRight,
+} from "@tabler/icons-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -27,6 +34,8 @@ import type { MovieFilters } from "@/types/movies";
 export default function MoviesPage() {
   const [filters, setFilters] = useState<MovieFilters>({
     ordering: "-release_date",
+    page: 1,
+    page_size: 10,
   });
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -36,6 +45,10 @@ export default function MoviesPage() {
   const totalCount = moviesData?.count || 0;
   const hasNext = !!moviesData?.next;
   const hasPrevious = !!moviesData?.previous;
+
+  const currentPage = filters.page || 1;
+  const pageSize = filters.page_size || 10;
+  const totalPages = Math.ceil(totalCount / pageSize);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,12 +65,22 @@ export default function MoviesPage() {
     setFilters(newFilters);
   };
 
+  const handlePageSizeChange = (pageSize: string) => {
+    const newFilters = {
+      ...filters,
+      page_size: Number(pageSize),
+      page: 1,
+    };
+    setFilters(newFilters);
+  };
+
   const handlePageChange = (page: number) => {
     const newFilters = { ...filters, page };
     setFilters(newFilters);
   };
 
-  const currentPage = filters.page || 1;
+  const canPreviousPage = hasPrevious;
+  const canNextPage = hasNext;
 
   if (error) {
     return (
@@ -302,28 +325,79 @@ export default function MoviesPage() {
         </Table>
       </div>
 
-      {/* Pagination */}
-      {(hasPrevious || hasNext) && (
-        <div className="flex justify-center gap-2 mt-6">
-          <Button
-            variant="outline"
-            disabled={!hasPrevious}
-            onClick={() => handlePageChange(currentPage - 1)}
-          >
-            Previous
-          </Button>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">
-              Page {currentPage}
-            </span>
+      {/* Enhanced Pagination */}
+      {totalCount > 0 && (
+        <div className="flex items-center justify-between px-4 mt-6">
+          <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
+            Showing {((currentPage - 1) * pageSize) + 1} to{" "}
+            {Math.min(currentPage * pageSize, totalCount)} of {totalCount} movie(s).
           </div>
-          <Button
-            variant="outline"
-            disabled={!hasNext}
-            onClick={() => handlePageChange(currentPage + 1)}
-          >
-            Next
-          </Button>
+          <div className="flex w-full items-center gap-8 lg:w-fit">
+            <div className="hidden items-center gap-2 lg:flex">
+              <Label htmlFor="rows-per-page" className="text-sm font-medium">
+                Movies per page
+              </Label>
+              <Select
+                value={`${pageSize}`}
+                onValueChange={handlePageSizeChange}
+              >
+                <SelectTrigger size="sm" className="w-20" id="rows-per-page">
+                  <SelectValue placeholder={pageSize} />
+                </SelectTrigger>
+                <SelectContent side="top">
+                  {[10, 20, 30, 40, 50].map((size) => (
+                    <SelectItem key={size} value={`${size}`}>
+                      {size}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex w-fit items-center justify-center text-sm font-medium">
+              Page {currentPage} of {totalPages}
+            </div>
+            <div className="ml-auto flex items-center gap-2 lg:ml-0">
+              <Button
+                variant="outline"
+                className="hidden h-8 w-8 p-0 lg:flex"
+                onClick={() => handlePageChange(1)}
+                disabled={!canPreviousPage}
+              >
+                <span className="sr-only">Go to first page</span>
+                <IconChevronsLeft />
+              </Button>
+              <Button
+                variant="outline"
+                className="size-8"
+                size="icon"
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={!canPreviousPage}
+              >
+                <span className="sr-only">Go to previous page</span>
+                <IconChevronLeft />
+              </Button>
+              <Button
+                variant="outline"
+                className="size-8"
+                size="icon"
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={!canNextPage}
+              >
+                <span className="sr-only">Go to next page</span>
+                <IconChevronRight />
+              </Button>
+              <Button
+                variant="outline"
+                className="hidden size-8 lg:flex"
+                size="icon"
+                onClick={() => handlePageChange(totalPages)}
+                disabled={!canNextPage}
+              >
+                <span className="sr-only">Go to last page</span>
+                <IconChevronsRight />
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -22,6 +22,9 @@ export const moviesApi = {
     if (filters?.page) {
       params.set("page", filters.page.toString());
     }
+    if (filters?.page_size) {
+      params.set("page_size", filters.page_size.toString());
+    }
 
     const endpoint = `/movies/${params.toString() ? `?${params.toString()}` : ""}`;
     return api.get<MovieListResponse>(endpoint);
