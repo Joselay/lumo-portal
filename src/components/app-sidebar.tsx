@@ -1,7 +1,7 @@
 "use client";
 
-import * as React from "react";
 import {
+  IconCalendar,
   IconCamera,
   IconChartBar,
   IconDashboard,
@@ -13,11 +13,16 @@ import {
   IconHelp,
   IconInnerShadowTop,
   IconListDetails,
+  IconMovie,
   IconReport,
   IconSearch,
   IconSettings,
+  IconShoppingCart,
+  IconTags,
   IconUsers,
 } from "@tabler/icons-react";
+import Link from "next/link";
+import type * as React from "react";
 
 import { NavDocuments } from "@/components/nav-documents";
 import { NavMain } from "@/components/nav-main";
@@ -41,29 +46,24 @@ const data = {
   },
   navMain: [
     {
-      title: "Dashboard",
-      url: "#",
-      icon: IconDashboard,
+      title: "Movies",
+      url: "/movies",
+      icon: IconMovie,
     },
     {
-      title: "Lifecycle",
-      url: "#",
-      icon: IconListDetails,
-    },
-    {
-      title: "Analytics",
-      url: "#",
-      icon: IconChartBar,
-    },
-    {
-      title: "Projects",
-      url: "#",
-      icon: IconFolder,
-    },
-    {
-      title: "Team",
-      url: "#",
+      title: "Users",
+      url: "/users",
       icon: IconUsers,
+    },
+    {
+      title: "Genres",
+      url: "/genres",
+      icon: IconTags,
+    },
+    {
+      title: "Bookings",
+      url: "/bookings",
+      icon: IconCalendar,
     },
   ],
   navClouds: [
@@ -160,10 +160,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <a href="#">
+              <Link href="#">
                 <IconInnerShadowTop className="!size-5" />
-                <span className="text-base font-semibold">Acme Inc.</span>
-              </a>
+                <span className="text-base font-semibold">Lumo</span>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
