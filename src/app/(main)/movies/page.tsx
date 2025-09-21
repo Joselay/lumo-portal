@@ -8,6 +8,7 @@ import {
   IconChevronRight,
   IconChevronsLeft,
   IconChevronsRight,
+  IconPlayerPlay,
 } from "@tabler/icons-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -35,16 +36,16 @@ import type { MovieFilters } from "@/types/movies";
 export default function MoviesPage() {
   const [search, setSearch] = useQueryState(
     "search",
-    parseAsString.withDefault("")
+    parseAsString.withDefault(""),
   );
   const [ordering, setOrdering] = useQueryState(
     "ordering",
-    parseAsString.withDefault("-release_date")
+    parseAsString.withDefault("-release_date"),
   );
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
   const [pageSize, setPageSize] = useQueryState(
     "page_size",
-    parseAsInteger.withDefault(10)
+    parseAsInteger.withDefault(10),
   );
 
   const [searchQuery, setSearchQuery] = useState(search);
@@ -60,7 +61,7 @@ export default function MoviesPage() {
       page,
       page_size: pageSize,
     }),
-    [search, ordering, page, pageSize]
+    [search, ordering, page, pageSize],
   );
 
   const { data: moviesData, isLoading, error } = useMovies(filters);
@@ -131,6 +132,9 @@ export default function MoviesPage() {
                   <TableHead>Duration</TableHead>
                   <TableHead>Release Date</TableHead>
                   <TableHead>Rating</TableHead>
+                  <TableHead className="w-16">
+                    <IconPlayerPlay className="h-4 w-4 mx-auto" />
+                  </TableHead>
                   <TableHead>Genres</TableHead>
                   <TableHead>Status</TableHead>
                 </TableRow>
@@ -155,6 +159,9 @@ export default function MoviesPage() {
                     </TableCell>
                     <TableCell>
                       <Skeleton className="h-4 w-12" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-16" />
                     </TableCell>
                     <TableCell>
                       <Skeleton className="h-4 w-24" />
@@ -209,6 +216,7 @@ export default function MoviesPage() {
               <TableHead>Duration</TableHead>
               <TableHead>Release Date</TableHead>
               <TableHead>Rating</TableHead>
+              <TableHead className="w-16">Trailer</TableHead>
               <TableHead>Genres</TableHead>
               <TableHead>Status</TableHead>
             </TableRow>
@@ -246,7 +254,7 @@ export default function MoviesPage() {
             ) : movies.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={8}
+                  colSpan={9}
                   className="text-center py-8 text-muted-foreground"
                 >
                   No movies found
@@ -300,6 +308,27 @@ export default function MoviesPage() {
                       </div>
                     ) : (
                       <span className="text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {movie.trailer_url ? (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0"
+                        asChild
+                      >
+                        <a
+                          href={movie.trailer_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="Watch Trailer"
+                        >
+                          <IconPlayerPlay className="h-4 w-4" />
+                        </a>
+                      </Button>
+                    ) : (
+                      <span className="text-muted-foreground text-xs">—</span>
                     )}
                   </TableCell>
                   <TableCell>

@@ -12,6 +12,7 @@ export interface Movie {
   release_date: string;
   rating: string;
   poster_image: string | null;
+  trailer_url: string | null;
   genres: Genre[];
 }
 
