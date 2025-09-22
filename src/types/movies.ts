@@ -13,6 +13,7 @@ export interface Movie {
   rating: string;
   poster_image: string;
   genres: Genre[];
+  is_active: boolean;
 }
 
 export interface MovieListResponse {

@@ -308,11 +308,12 @@ function MoviesContent() {
                 </div>
               </TableHead>
               <TableHead className="w-16">Poster</TableHead>
-              <TableHead>Title</TableHead>
+              <TableHead className="w-40">Title</TableHead>
               <TableHead>Description</TableHead>
               <TableHead>Duration</TableHead>
               <TableHead>Release Date</TableHead>
               <TableHead>Rating</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead>Genres</TableHead>
               <TableHead className="w-16"></TableHead>
             </TableRow>
@@ -321,7 +322,7 @@ function MoviesContent() {
             {movies.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={9}
+                  colSpan={10}
                   className="text-center py-8 text-muted-foreground"
                 >
                   No movies found
@@ -363,7 +364,9 @@ function MoviesContent() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="font-medium">{movie.title}</div>
+                    <div className="font-medium max-w-40 truncate" title={movie.title}>
+                      {movie.title}
+                    </div>
                   </TableCell>
                   <TableCell>
                     <div
@@ -388,6 +391,14 @@ function MoviesContent() {
                     ) : (
                       <span className="text-muted-foreground">—</span>
                     )}
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={movie.is_active ? "default" : "secondary"}
+                      className={movie.is_active ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" : ""}
+                    >
+                      {movie.is_active ? "Active" : "Inactive"}
+                    </Badge>
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
