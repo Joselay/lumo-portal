@@ -3,6 +3,13 @@ export interface Genre {
   name: string;
 }
 
+export interface GenreListResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: Genre[];
+}
+
 export interface Movie {
   id: string;
   title: string;
