@@ -36,3 +36,7 @@ export interface MovieFilters {
   page?: number;
   page_size?: number;
 }
+
+export interface DeleteMovieResponse {
+  message: string;
+}

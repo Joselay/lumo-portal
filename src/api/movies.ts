@@ -1,5 +1,10 @@
 import { api } from "@/lib/api";
-import type { Genre, MovieFilters, MovieListResponse } from "@/types/movies";
+import type {
+  Genre,
+  MovieFilters,
+  MovieListResponse,
+  DeleteMovieResponse,
+} from "@/types/movies";
 
 export const moviesApi = {
   async getMovies(filters?: MovieFilters): Promise<MovieListResponse> {
@@ -32,5 +37,9 @@ export const moviesApi = {
 
   async getGenres(): Promise<{ results: Genre[] }> {
     return api.get<{ results: Genre[] }>("/genres/");
+  },
+
+  async deleteMovie(id: string): Promise<DeleteMovieResponse> {
+    return api.delete<DeleteMovieResponse>(`/movies/${id}/delete/`);
   },
 };

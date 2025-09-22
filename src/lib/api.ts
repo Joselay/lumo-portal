@@ -41,4 +41,10 @@ export const api = {
       method: "GET",
     });
   },
+
+  async delete<T>(endpoint: string): Promise<T> {
+    return this.request<T>(endpoint, {
+      method: "DELETE",
+    });
+  },
 };

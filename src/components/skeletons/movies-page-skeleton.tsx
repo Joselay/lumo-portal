@@ -109,7 +109,9 @@ export function MoviesPageSkeleton({ rows = 10 }: MoviesPageSkeletonProps) {
   );
 }
 
-export function MoviesPageSkeletonFallback({ rows = 10 }: MoviesPageSkeletonProps) {
+export function MoviesPageSkeletonFallback({
+  rows = 10,
+}: MoviesPageSkeletonProps) {
   return (
     <div className="px-4 lg:px-6">
       <div className="flex flex-col md:flex-row gap-4 mb-4">

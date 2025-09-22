@@ -6,11 +6,21 @@ import {
   IconChevronsLeft,
   IconChevronsRight,
   IconDotsVertical,
-  IconPlayerPlay,
 } from "@tabler/icons-react";
 import Image from "next/image";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { Suspense, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -30,7 +40,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -39,9 +48,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { MoviesPageSkeleton, MoviesPageSkeletonFallback } from "@/components/skeletons/movies-page-skeleton";
-import { useMovies } from "@/hooks/use-movies";
-import type { MovieFilters } from "@/types/movies";
+import {
+  MoviesPageSkeleton,
+  MoviesPageSkeletonFallback,
+} from "@/components/skeletons/movies-page-skeleton";
+import { useDeleteMovie, useMovies } from "@/hooks/use-movies";
+import type { Movie, MovieFilters } from "@/types/movies";
 
 function MoviesContent() {
   const [search, setSearch] = useQueryState(
@@ -60,6 +72,8 @@ function MoviesContent() {
 
   const [searchQuery, setSearchQuery] = useState(search);
   const [selectedMovies, setSelectedMovies] = useState<Set<string>>(new Set());
+  const [movieToDelete, setMovieToDelete] = useState<Movie | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   useEffect(() => {
     setSearchQuery(search);
@@ -76,6 +90,7 @@ function MoviesContent() {
   );
 
   const { data: moviesData, isLoading, error } = useMovies(filters);
+  const deleteMovieMutation = useDeleteMovie();
 
   const movies = moviesData?.results || [];
   const totalCount = moviesData?.count || 0;
@@ -130,6 +145,36 @@ function MoviesContent() {
     selectedMovies.size === movies.length && movies.length > 0;
   const isSomeSelected =
     selectedMovies.size > 0 && selectedMovies.size < movies.length;
+
+  const handleDeleteMovie = (movie: Movie) => {
+    setMovieToDelete(movie);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteMovie = async () => {
+    if (!movieToDelete) return;
+
+    try {
+      await deleteMovieMutation.mutateAsync(movieToDelete.id);
+      toast.success(`"${movieToDelete.title}" has been deleted successfully`);
+      setIsDeleteDialogOpen(false);
+      setMovieToDelete(null);
+      // Remove from selected movies if it was selected
+      setSelectedMovies((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(movieToDelete.id);
+        return newSet;
+      });
+    } catch (error) {
+      toast.error("Failed to delete movie. Please try again.");
+      console.error("Delete movie error:", error);
+    }
+  };
+
+  const cancelDeleteMovie = () => {
+    setIsDeleteDialogOpen(false);
+    setMovieToDelete(null);
+  };
 
   if (error) {
     return (
@@ -309,7 +354,12 @@ function MoviesContent() {
                         <DropdownMenuItem>Make a copy</DropdownMenuItem>
                         <DropdownMenuItem>Favorite</DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+                        <DropdownMenuItem
+                          variant="destructive"
+                          onClick={() => handleDeleteMovie(movie)}
+                        >
+                          Delete
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -403,15 +453,40 @@ function MoviesContent() {
           </div>
         </div>
       )}
+
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Movie</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{movieToDelete?.title}"? This
+              action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={cancelDeleteMovie}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteMovie}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={deleteMovieMutation.isPending}
+            >
+              {deleteMovieMutation.isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
 
 export default function MoviesPage() {
   return (
-    <Suspense
-      fallback={<MoviesPageSkeletonFallback />}
-    >
+    <Suspense fallback={<MoviesPageSkeletonFallback />}>
       <MoviesContent />
     </Suspense>
   );
