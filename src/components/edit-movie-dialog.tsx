@@ -162,7 +162,12 @@ export function EditMovieDialog({
 
     const originalGenreIds = movie.genres.map((g) => g.id).sort();
     const newGenreIds = (data.genre_ids || []).sort();
-    if (JSON.stringify(originalGenreIds) !== JSON.stringify(newGenreIds)) {
+
+    const genresChanged =
+      originalGenreIds.length !== newGenreIds.length ||
+      originalGenreIds.some((id, index) => id !== newGenreIds[index]);
+
+    if (genresChanged) {
       submitData.genre_ids = data.genre_ids;
     }
 
