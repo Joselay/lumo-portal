@@ -5,6 +5,8 @@ import type {
   MovieListResponse,
   DeleteMovieResponse,
   BatchDeleteMoviesResponse,
+  CreateMovieRequest,
+  CreateMovieResponse,
 } from "@/types/movies";
 
 export const moviesApi = {
@@ -48,5 +50,9 @@ export const moviesApi = {
     return api.post<BatchDeleteMoviesResponse>("/movies/batch-delete/", {
       movie_ids: ids,
     });
+  },
+
+  async createMovie(data: CreateMovieRequest): Promise<CreateMovieResponse> {
+    return api.post<CreateMovieResponse>("/movies/create/", data);
   },
 };

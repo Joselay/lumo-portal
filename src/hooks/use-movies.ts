@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { moviesApi } from "@/api/movies";
-import type { MovieFilters } from "@/types/movies";
+import type { MovieFilters, CreateMovieRequest } from "@/types/movies";
 
 export const useMovies = (filters?: MovieFilters) => {
   return useQuery({
@@ -38,6 +38,20 @@ export const useDeleteMovies = () => {
     onSuccess: () => {
       // Invalidate movies queries to refetch the data
       queryClient.invalidateQueries({ queryKey: ["movies"] });
+    },
+  });
+};
+
+export const useCreateMovie = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: CreateMovieRequest) => moviesApi.createMovie(data),
+    onSuccess: () => {
+      // Invalidate movies queries to refetch the data
+      queryClient.invalidateQueries({ queryKey: ["movies"] });
+      // Also invalidate genres in case new ones were added
+      queryClient.invalidateQueries({ queryKey: ["genres"] });
     },
   });
 };

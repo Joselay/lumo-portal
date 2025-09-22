@@ -46,3 +46,17 @@ export interface BatchDeleteMoviesResponse {
   deleted_count: number;
   deleted_movies: string[];
 }
+
+export interface CreateMovieRequest {
+  title: string;
+  description: string;
+  duration: number;
+  release_date: string;
+  rating?: number;
+  poster_image?: string;
+  trailer_url?: string;
+  genre_ids?: string[];
+  is_active?: boolean;
+}
+
+export interface CreateMovieResponse extends Movie {}

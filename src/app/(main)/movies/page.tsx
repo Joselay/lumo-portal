@@ -6,6 +6,7 @@ import {
   IconChevronsLeft,
   IconChevronsRight,
   IconDotsVertical,
+  IconPlus,
 } from "@tabler/icons-react";
 import Image from "next/image";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
@@ -52,6 +53,7 @@ import {
   MoviesPageSkeleton,
   MoviesPageSkeletonFallback,
 } from "@/components/skeletons/movies-page-skeleton";
+import { AddMovieDialog } from "@/components/add-movie-dialog";
 import { useDeleteMovie, useDeleteMovies, useMovies } from "@/hooks/use-movies";
 import type { Movie, MovieFilters } from "@/types/movies";
 
@@ -75,6 +77,7 @@ function MoviesContent() {
   const [movieToDelete, setMovieToDelete] = useState<Movie | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isBatchDeleteDialogOpen, setIsBatchDeleteDialogOpen] = useState(false);
+  const [isAddMovieDialogOpen, setIsAddMovieDialogOpen] = useState(false);
 
   useEffect(() => {
     setSearchQuery(search);
@@ -233,6 +236,19 @@ function MoviesContent() {
 
   return (
     <div className="px-4 lg:px-6">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Movies</h1>
+          <p className="text-muted-foreground">
+            Manage your movie collection
+          </p>
+        </div>
+        <Button onClick={() => setIsAddMovieDialogOpen(true)}>
+          <IconPlus className="mr-2 h-4 w-4" />
+          Add Movie
+        </Button>
+      </div>
+
       <div className="flex flex-col md:flex-row gap-4 mb-4">
         <form onSubmit={handleSearch} className="flex gap-2 flex-1">
           <Input
@@ -561,6 +577,11 @@ function MoviesContent() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <AddMovieDialog
+        open={isAddMovieDialogOpen}
+        onOpenChange={setIsAddMovieDialogOpen}
+      />
     </div>
   );
 }
