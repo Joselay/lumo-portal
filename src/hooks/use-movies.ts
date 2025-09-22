@@ -37,8 +37,9 @@ export const useDeleteMovie = () => {
 
   return useMutation({
     mutationFn: (movieId: string) => moviesApi.deleteMovie(movieId),
-    onSuccess: () => {
+    onSuccess: (_, movieId) => {
       queryClient.invalidateQueries({ queryKey: ["movies"] });
+      queryClient.removeQueries({ queryKey: ["movie", movieId] });
     },
   });
 };
@@ -48,8 +49,11 @@ export const useDeleteMovies = () => {
 
   return useMutation({
     mutationFn: (movieIds: string[]) => moviesApi.deleteMovies(movieIds),
-    onSuccess: () => {
+    onSuccess: (_, movieIds) => {
       queryClient.invalidateQueries({ queryKey: ["movies"] });
+      movieIds.forEach((movieId) => {
+        queryClient.removeQueries({ queryKey: ["movie", movieId] });
+      });
     },
   });
 };
@@ -71,8 +75,9 @@ export const useUpdateMovie = () => {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateMovieRequest }) =>
       moviesApi.updateMovie(id, data),
-    onSuccess: () => {
+    onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ["movies"] });
+      queryClient.invalidateQueries({ queryKey: ["movie", id] });
     },
   });
 };
