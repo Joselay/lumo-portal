@@ -239,17 +239,6 @@ function MoviesContent() {
 
   return (
     <div className="px-4 lg:px-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Movies</h1>
-          <p className="text-muted-foreground">Manage your movie collection</p>
-        </div>
-        <Button onClick={() => setIsAddMovieDialogOpen(true)}>
-          <IconPlus className="mr-2 h-4 w-4" />
-          Add Movie
-        </Button>
-      </div>
-
       <div className="flex flex-col md:flex-row gap-4 mb-4">
         <div className="flex-1">
           <Input
@@ -272,6 +261,10 @@ function MoviesContent() {
             <SelectItem value="-title">Title Z-A</SelectItem>
           </SelectContent>
         </Select>
+        <Button onClick={() => setIsAddMovieDialogOpen(true)}>
+          <IconPlus className="mr-2 h-4 w-4" />
+          Add Movie
+        </Button>
       </div>
 
       {selectedMovies.size > 0 && (
