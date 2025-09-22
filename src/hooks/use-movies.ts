@@ -50,8 +50,6 @@ export const useCreateMovie = () => {
     onSuccess: () => {
       // Invalidate movies queries to refetch the data
       queryClient.invalidateQueries({ queryKey: ["movies"] });
-      // Also invalidate genres in case new ones were added
-      queryClient.invalidateQueries({ queryKey: ["genres"] });
     },
   });
 };
