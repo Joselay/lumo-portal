@@ -136,7 +136,7 @@ export function EditMovieDialog({
 
     const originalReleaseDate = format(
       parseISO(movie.release_date),
-      "yyyy-MM-dd"
+      "yyyy-MM-dd",
     );
     const newReleaseDate = format(data.release_date, "yyyy-MM-dd");
     if (newReleaseDate !== originalReleaseDate) {
@@ -371,7 +371,7 @@ export function EditMovieDialog({
                               variant="outline"
                               className={cn(
                                 "w-full pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
+                                !field.value && "text-muted-foreground",
                               )}
                             >
                               {field.value ? (
@@ -416,7 +416,7 @@ export function EditMovieDialog({
                             field.onChange(
                               e.target.value
                                 ? Number(e.target.value)
-                                : undefined
+                                : undefined,
                             )
                           }
                         />
@@ -496,8 +496,8 @@ export function EditMovieDialog({
                                             ])
                                           : field.onChange(
                                               currentValue.filter(
-                                                (value) => value !== genre.id
-                                              )
+                                                (value) => value !== genre.id,
+                                              ),
                                             );
                                       }}
                                     />

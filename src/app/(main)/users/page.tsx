@@ -51,27 +51,22 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  MoviesPageSkeleton,
-  MoviesPageSkeletonFallback,
-} from "@/components/skeletons/movies-page-skeleton";
-import { AddMovieDialog } from "@/components/add-movie-dialog";
-import { EditMovieDialog } from "@/components/edit-movie-dialog";
-import {
-  useDeleteMovie,
-  useDeleteMovies,
-  useMovies,
-  useGenres,
-} from "@/hooks/use-movies";
-import type { Movie, MovieFilters } from "@/types/movies";
+  UsersPageSkeleton,
+  UsersPageSkeletonFallback,
+} from "@/components/skeletons/users-page-skeleton";
+import { AddUserDialog } from "@/components/add-user-dialog";
+import { EditUserDialog } from "@/components/edit-user-dialog";
+import { useDeleteUser, useDeleteUsers, useUsers } from "@/hooks/use-users";
+import type { User, UserFilters } from "@/types/users";
 
-function MoviesContent() {
+function UsersContent() {
   const [search, setSearch] = useQueryState(
     "search",
     parseAsString.withDefault(""),
   );
   const [ordering, setOrdering] = useQueryState(
     "ordering",
-    parseAsString.withDefault("-release_date"),
+    parseAsString.withDefault("-date_joined"),
   );
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
   const [pageSize, setPageSize] = useQueryState(
@@ -81,13 +76,13 @@ function MoviesContent() {
 
   const [searchInput, setSearchInput] = useState(search);
   const [debouncedSearch] = useDebounce(searchInput, 300);
-  const [selectedMovies, setSelectedMovies] = useState<Set<string>>(new Set());
-  const [movieToDelete, setMovieToDelete] = useState<Movie | null>(null);
+  const [selectedUsers, setSelectedUsers] = useState<Set<number>>(new Set());
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isBatchDeleteDialogOpen, setIsBatchDeleteDialogOpen] = useState(false);
-  const [isAddMovieDialogOpen, setIsAddMovieDialogOpen] = useState(false);
-  const [isEditMovieDialogOpen, setIsEditMovieDialogOpen] = useState(false);
-  const [movieToEdit, setMovieToEdit] = useState<string | null>(null);
+  const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
+  const [isEditUserDialogOpen, setIsEditUserDialogOpen] = useState(false);
+  const [userToEdit, setUserToEdit] = useState<number | null>(null);
 
   useEffect(() => {
     if (debouncedSearch !== search) {
@@ -100,27 +95,24 @@ function MoviesContent() {
     setSearchInput(search);
   }, [search]);
 
-  const filters = useMemo<MovieFilters>(
+  const filters = useMemo<UserFilters>(
     () => ({
       search: search || undefined,
-      ordering: ordering as MovieFilters["ordering"],
+      ordering: ordering as UserFilters["ordering"],
       page,
       page_size: pageSize,
     }),
     [search, ordering, page, pageSize],
   );
 
-  const { data: moviesData, isLoading, error } = useMovies(filters);
-  const deleteMovieMutation = useDeleteMovie();
-  const deleteMoviesMutation = useDeleteMovies();
+  const { data: usersData, isLoading, error } = useUsers(filters);
+  const deleteUserMutation = useDeleteUser();
+  const deleteUsersMutation = useDeleteUsers();
 
-  // Pre-fetch genres for Add/Edit dialogs
-  useGenres();
-
-  const movies = moviesData?.results || [];
-  const totalCount = moviesData?.count || 0;
-  const hasNext = !!moviesData?.next;
-  const hasPrevious = !!moviesData?.previous;
+  const users = usersData?.results || [];
+  const totalCount = usersData?.count || 0;
+  const hasNext = !!usersData?.next;
+  const hasPrevious = !!usersData?.previous;
   const totalPages = Math.ceil(totalCount / pageSize);
 
   const handleOrderingChange = (newOrdering: string) => {
@@ -140,92 +132,90 @@ function MoviesContent() {
   const canPreviousPage = hasPrevious;
   const canNextPage = hasNext;
 
-  const toggleMovieSelection = (movieId: string) => {
-    setSelectedMovies((prev) => {
+  const toggleUserSelection = (userId: number) => {
+    setSelectedUsers((prev) => {
       const newSet = new Set(prev);
-      if (newSet.has(movieId)) {
-        newSet.delete(movieId);
+      if (newSet.has(userId)) {
+        newSet.delete(userId);
       } else {
-        newSet.add(movieId);
+        newSet.add(userId);
       }
       return newSet;
     });
   };
 
-  const toggleAllMoviesSelection = () => {
-    if (selectedMovies.size === movies.length && movies.length > 0) {
-      setSelectedMovies(new Set());
+  const toggleAllUsersSelection = () => {
+    if (selectedUsers.size === users.length && users.length > 0) {
+      setSelectedUsers(new Set());
     } else {
-      setSelectedMovies(new Set(movies.map((movie) => movie.id)));
+      setSelectedUsers(new Set(users.map((user) => user.id)));
     }
   };
 
-  const isAllSelected =
-    selectedMovies.size === movies.length && movies.length > 0;
+  const isAllSelected = selectedUsers.size === users.length && users.length > 0;
   const isSomeSelected =
-    selectedMovies.size > 0 && selectedMovies.size < movies.length;
+    selectedUsers.size > 0 && selectedUsers.size < users.length;
 
-  const handleDeleteMovie = (movie: Movie) => {
-    setMovieToDelete(movie);
+  const handleDeleteUser = (user: User) => {
+    setUserToDelete(user);
     setIsDeleteDialogOpen(true);
   };
 
-  const handleEditMovie = (movie: Movie) => {
-    setMovieToEdit(movie.id);
-    setIsEditMovieDialogOpen(true);
+  const handleEditUser = (user: User) => {
+    setUserToEdit(user.id);
+    setIsEditUserDialogOpen(true);
   };
 
-  const confirmDeleteMovie = async () => {
-    if (!movieToDelete) return;
+  const confirmDeleteUser = async () => {
+    if (!userToDelete) return;
 
-    const deletePromise = deleteMovieMutation.mutateAsync(movieToDelete.id);
+    const deletePromise = deleteUserMutation.mutateAsync(userToDelete.id);
 
     toast.promise(deletePromise, {
-      loading: `Deleting "${movieToDelete.title}"...`,
+      loading: `Deleting "${userToDelete.username}"...`,
       success: () => {
         setIsDeleteDialogOpen(false);
-        setMovieToDelete(null);
-        // Remove from selected movies if it was selected
-        setSelectedMovies((prev) => {
+        setUserToDelete(null);
+        setSelectedUsers((prev) => {
           const newSet = new Set(prev);
-          newSet.delete(movieToDelete.id);
+          newSet.delete(userToDelete.id);
           return newSet;
         });
-        return `"${movieToDelete.title}" has been deleted successfully`;
+        return `"${userToDelete.username}" has been deleted successfully`;
       },
       error: (error) => {
-        console.error("Delete movie error:", error);
-        return "Failed to delete movie. Please try again.";
+        console.error("Delete user error:", error);
+        return "Failed to delete user. Please try again.";
       },
     });
   };
 
-  const cancelDeleteMovie = () => {
+  const cancelDeleteUser = () => {
     setIsDeleteDialogOpen(false);
-    setMovieToDelete(null);
+    setUserToDelete(null);
   };
 
   const handleBatchDelete = () => {
-    if (selectedMovies.size === 0) return;
+    if (selectedUsers.size === 0) return;
     setIsBatchDeleteDialogOpen(true);
   };
 
   const confirmBatchDelete = async () => {
-    if (selectedMovies.size === 0) return;
+    if (selectedUsers.size === 0) return;
 
-    const movieIds = Array.from(selectedMovies);
-    const deletePromise = deleteMoviesMutation.mutateAsync(movieIds);
+    const userIds = Array.from(selectedUsers);
+    const deletePromise = deleteUsersMutation.mutateAsync(userIds);
 
     toast.promise(deletePromise, {
-      loading: `Deleting ${selectedMovies.size} movie(s)...`,
+      loading: `Deleting ${selectedUsers.size} user(s)...`,
       success: (result) => {
         setIsBatchDeleteDialogOpen(false);
-        setSelectedMovies(new Set());
-        return `${result.deleted_count} movie(s) deleted successfully`;
+        setSelectedUsers(new Set());
+        return `${result.deleted_count} user(s) deleted successfully`;
       },
       error: (error) => {
         console.error("Batch delete error:", error);
-        return "Failed to delete movies. Please try again.";
+        return "Failed to delete users. Please try again.";
       },
     });
   };
@@ -234,15 +224,24 @@ function MoviesContent() {
     setIsBatchDeleteDialogOpen(false);
   };
 
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString();
+  };
+
+  const getFullName = (user: User) => {
+    const fullName = `${user.first_name} ${user.last_name}`.trim();
+    return fullName || user.username;
+  };
+
   if (error) {
     return (
       <div className="px-4 lg:px-6">
         <div className="mb-6">
           <h1 className="text-3xl font-bold tracking-tight text-destructive">
-            Error loading movies
+            Error loading users
           </h1>
           <p className="text-muted-foreground mt-2">
-            Failed to load movies. Please try again later.
+            Failed to load users. Please try again later.
           </p>
         </div>
       </div>
@@ -250,7 +249,7 @@ function MoviesContent() {
   }
 
   if (isLoading) {
-    return <MoviesPageSkeleton rows={pageSize} />;
+    return <UsersPageSkeleton rows={pageSize} />;
   }
 
   return (
@@ -258,7 +257,7 @@ function MoviesContent() {
       <div className="flex flex-col md:flex-row gap-4 mb-4">
         <div className="flex-1">
           <Input
-            placeholder="Search movies..."
+            placeholder="Search users..."
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             className="w-full"
@@ -269,34 +268,36 @@ function MoviesContent() {
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="-release_date">Newest First</SelectItem>
-            <SelectItem value="release_date">Oldest First</SelectItem>
-            <SelectItem value="-rating">Highest Rated</SelectItem>
-            <SelectItem value="rating">Lowest Rated</SelectItem>
-            <SelectItem value="title">Title A-Z</SelectItem>
-            <SelectItem value="-title">Title Z-A</SelectItem>
+            <SelectItem value="-date_joined">Newest First</SelectItem>
+            <SelectItem value="date_joined">Oldest First</SelectItem>
+            <SelectItem value="username">Username A-Z</SelectItem>
+            <SelectItem value="-username">Username Z-A</SelectItem>
+            <SelectItem value="email">Email A-Z</SelectItem>
+            <SelectItem value="-email">Email Z-A</SelectItem>
+            <SelectItem value="first_name">Name A-Z</SelectItem>
+            <SelectItem value="-first_name">Name Z-A</SelectItem>
           </SelectContent>
         </Select>
-        <Button onClick={() => setIsAddMovieDialogOpen(true)}>
+        <Button onClick={() => setIsAddUserDialogOpen(true)}>
           <IconPlus className="mr-2 h-4 w-4" />
-          Add Movie
+          Add User
         </Button>
       </div>
 
-      {selectedMovies.size > 0 && (
+      {selectedUsers.size > 0 && (
         <div className="flex items-center justify-between mb-4 p-3 bg-muted/50 rounded-lg border">
           <span className="text-sm font-medium">
-            {selectedMovies.size} movie(s) selected
+            {selectedUsers.size} user(s) selected
           </span>
           <Button
             variant="destructive"
             size="sm"
             onClick={handleBatchDelete}
-            disabled={deleteMoviesMutation.isPending}
+            disabled={deleteUsersMutation.isPending}
           >
-            {deleteMoviesMutation.isPending
+            {deleteUsersMutation.isPending
               ? "Deleting..."
-              : `Delete Selected (${selectedMovies.size})`}
+              : `Delete Selected (${selectedUsers.size})`}
           </Button>
         </div>
       )}
@@ -311,121 +312,108 @@ function MoviesContent() {
                     checked={
                       isAllSelected || (isSomeSelected && "indeterminate")
                     }
-                    onCheckedChange={toggleAllMoviesSelection}
-                    aria-label="Select all movies"
+                    onCheckedChange={toggleAllUsersSelection}
+                    aria-label="Select all users"
                   />
                 </div>
               </TableHead>
-              <TableHead className="w-16">Poster</TableHead>
-              <TableHead className="w-56">Title</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead>Duration</TableHead>
-              <TableHead>Release Date</TableHead>
-              <TableHead>Rating</TableHead>
+              <TableHead className="w-16">Avatar</TableHead>
+              <TableHead className="w-32">Username</TableHead>
+              <TableHead className="w-48">Name</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Role</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Genres</TableHead>
+              <TableHead>Joined</TableHead>
+              <TableHead>Last Login</TableHead>
               <TableHead className="w-16"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {movies.length === 0 ? (
+            {users.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={10}
                   className="text-center py-8 text-muted-foreground"
                 >
-                  No movies found
+                  No users found
                 </TableCell>
               </TableRow>
             ) : (
-              movies.map((movie) => (
+              users.map((user) => (
                 <TableRow
-                  key={movie.id}
+                  key={user.id}
                   className="hover:bg-muted/50 transition-colors"
                   data-state={
-                    selectedMovies.has(movie.id) ? "selected" : undefined
+                    selectedUsers.has(user.id) ? "selected" : undefined
                   }
                 >
                   <TableCell>
                     <div className="flex items-center justify-center">
                       <Checkbox
-                        checked={selectedMovies.has(movie.id)}
-                        onCheckedChange={() => toggleMovieSelection(movie.id)}
-                        aria-label={`Select ${movie.title}`}
+                        checked={selectedUsers.has(user.id)}
+                        onCheckedChange={() => toggleUserSelection(user.id)}
+                        aria-label={`Select ${user.username}`}
                       />
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="w-12 h-12 bg-muted rounded flex items-center justify-center overflow-hidden">
-                      {movie.poster_image ? (
+                    <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center overflow-hidden">
+                      {user.customer_profile?.avatar_url ? (
                         <Image
-                          src={movie.poster_image}
-                          alt={movie.title}
-                          width={48}
-                          height={48}
+                          src={user.customer_profile.avatar_url}
+                          alt={user.username}
+                          width={40}
+                          height={40}
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="text-xs text-muted-foreground">
-                          No poster
+                        <div className="text-sm font-medium text-muted-foreground">
+                          {user.username.charAt(0).toUpperCase()}
                         </div>
                       )}
                     </div>
                   </TableCell>
                   <TableCell>
                     <div
-                      className="font-medium max-w-56 truncate"
-                      title={movie.title}
+                      className="font-medium max-w-32 truncate"
+                      title={user.username}
                     >
-                      {movie.title}
+                      {user.username}
                     </div>
                   </TableCell>
                   <TableCell>
                     <div
-                      className="text-sm text-muted-foreground max-w-xs truncate"
-                      title={movie.description}
+                      className="max-w-48 truncate"
+                      title={getFullName(user)}
                     >
-                      {movie.description}
+                      {getFullName(user)}
                     </div>
                   </TableCell>
-                  <TableCell className="font-mono text-sm">
-                    {movie.duration_formatted}
-                  </TableCell>
                   <TableCell>
-                    {new Date(movie.release_date).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>
-                    {movie.rating ? (
-                      <div className="flex items-center gap-1">
-                        <span>★</span>
-                        <span className="font-medium">{movie.rating}</span>
-                      </div>
-                    ) : (
-                      <span className="text-muted-foreground">—</span>
-                    )}
+                    <div
+                      className="text-sm text-muted-foreground truncate"
+                      title={user.email}
+                    >
+                      {user.email}
+                    </div>
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline">
-                      {movie.is_active ? "Active" : "Inactive"}
+                      {user.role === "admin" ? "Admin" : "Customer"}
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <div className="flex flex-wrap gap-1">
-                      {movie.genres.slice(0, 2).map((genre) => (
-                        <Badge
-                          key={genre.id}
-                          variant="secondary"
-                          className="text-xs"
-                        >
-                          {genre.name}
-                        </Badge>
-                      ))}
-                      {movie.genres.length > 2 && (
-                        <Badge variant="outline" className="text-xs">
-                          +{movie.genres.length - 2}
-                        </Badge>
-                      )}
-                    </div>
+                    <Badge variant="outline">
+                      {user.is_active ? "Active" : "Inactive"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{formatDate(user.date_joined)}</TableCell>
+                  <TableCell>
+                    {user.last_login ? (
+                      formatDate(user.last_login)
+                    ) : (
+                      <span className="text-muted-foreground">Never</span>
+                    )}
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>
@@ -440,15 +428,13 @@ function MoviesContent() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-32">
-                        <DropdownMenuItem
-                          onClick={() => handleEditMovie(movie)}
-                        >
+                        <DropdownMenuItem onClick={() => handleEditUser(user)}>
                           Edit
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           variant="destructive"
-                          onClick={() => handleDeleteMovie(movie)}
+                          onClick={() => handleDeleteUser(user)}
                         >
                           Delete
                         </DropdownMenuItem>
@@ -465,15 +451,14 @@ function MoviesContent() {
       {totalCount > 0 && (
         <div className="flex items-center justify-between px-4 mt-4">
           <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
-            {selectedMovies.size > 0 ? (
+            {selectedUsers.size > 0 ? (
               <span>
-                {selectedMovies.size} of {totalCount} movie(s) selected.
+                {selectedUsers.size} of {totalCount} user(s) selected.
               </span>
             ) : (
               <span>
                 Showing {(page - 1) * pageSize + 1} to{" "}
-                {Math.min(page * pageSize, totalCount)} of {totalCount}{" "}
-                movie(s).
+                {Math.min(page * pageSize, totalCount)} of {totalCount} user(s).
               </span>
             )}
           </div>
@@ -552,22 +537,22 @@ function MoviesContent() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Movie</AlertDialogTitle>
+            <AlertDialogTitle>Delete User</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{movieToDelete?.title}"? This
+              Are you sure you want to delete "{userToDelete?.username}"? This
               action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={cancelDeleteMovie}>
+            <AlertDialogCancel onClick={cancelDeleteUser}>
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
-              onClick={confirmDeleteMovie}
+              onClick={confirmDeleteUser}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              disabled={deleteMovieMutation.isPending}
+              disabled={deleteUserMutation.isPending}
             >
-              {deleteMovieMutation.isPending ? "Deleting..." : "Delete"}
+              {deleteUserMutation.isPending ? "Deleting..." : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -579,10 +564,10 @@ function MoviesContent() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Movies</AlertDialogTitle>
+            <AlertDialogTitle>Delete Users</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete {selectedMovies.size} selected
-              movie(s)? This action cannot be undone.
+              Are you sure you want to delete {selectedUsers.size} selected
+              user(s)? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -592,39 +577,39 @@ function MoviesContent() {
             <AlertDialogAction
               onClick={confirmBatchDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              disabled={deleteMoviesMutation.isPending}
+              disabled={deleteUsersMutation.isPending}
             >
-              {deleteMoviesMutation.isPending
+              {deleteUsersMutation.isPending
                 ? "Deleting..."
-                : `Delete ${selectedMovies.size} Movie(s)`}
+                : `Delete ${selectedUsers.size} User(s)`}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
-      <AddMovieDialog
-        open={isAddMovieDialogOpen}
-        onOpenChange={setIsAddMovieDialogOpen}
+      <AddUserDialog
+        open={isAddUserDialogOpen}
+        onOpenChange={setIsAddUserDialogOpen}
       />
 
-      <EditMovieDialog
-        open={isEditMovieDialogOpen}
+      <EditUserDialog
+        open={isEditUserDialogOpen}
         onOpenChange={(open) => {
-          setIsEditMovieDialogOpen(open);
+          setIsEditUserDialogOpen(open);
           if (!open) {
-            setMovieToEdit(null);
+            setUserToEdit(null);
           }
         }}
-        movieId={movieToEdit}
+        userId={userToEdit}
       />
     </div>
   );
 }
 
-export default function MoviesPage() {
+export default function UsersPage() {
   return (
-    <Suspense fallback={<MoviesPageSkeletonFallback />}>
-      <MoviesContent />
+    <Suspense fallback={<UsersPageSkeletonFallback />}>
+      <UsersContent />
     </Suspense>
   );
 }
