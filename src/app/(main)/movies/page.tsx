@@ -11,6 +11,7 @@ import {
 import Image from "next/image";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { Suspense, useEffect, useMemo, useState } from "react";
+import { useDebounce } from "use-debounce";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -60,19 +61,20 @@ import type { Movie, MovieFilters } from "@/types/movies";
 function MoviesContent() {
   const [search, setSearch] = useQueryState(
     "search",
-    parseAsString.withDefault(""),
+    parseAsString.withDefault("")
   );
   const [ordering, setOrdering] = useQueryState(
     "ordering",
-    parseAsString.withDefault("-release_date"),
+    parseAsString.withDefault("-release_date")
   );
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
   const [pageSize, setPageSize] = useQueryState(
     "page_size",
-    parseAsInteger.withDefault(10),
+    parseAsInteger.withDefault(10)
   );
 
-  const [searchQuery, setSearchQuery] = useState(search);
+  const [searchInput, setSearchInput] = useState(search);
+  const [debouncedSearch] = useDebounce(searchInput, 300);
   const [selectedMovies, setSelectedMovies] = useState<Set<string>>(new Set());
   const [movieToDelete, setMovieToDelete] = useState<Movie | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -80,7 +82,14 @@ function MoviesContent() {
   const [isAddMovieDialogOpen, setIsAddMovieDialogOpen] = useState(false);
 
   useEffect(() => {
-    setSearchQuery(search);
+    if (debouncedSearch !== search) {
+      setSearch(debouncedSearch);
+      setPage(1);
+    }
+  }, [debouncedSearch, search, setSearch, setPage]);
+
+  useEffect(() => {
+    setSearchInput(search);
   }, [search]);
 
   const filters = useMemo<MovieFilters>(
@@ -90,7 +99,7 @@ function MoviesContent() {
       page,
       page_size: pageSize,
     }),
-    [search, ordering, page, pageSize],
+    [search, ordering, page, pageSize]
   );
 
   const { data: moviesData, isLoading, error } = useMovies(filters);
@@ -102,12 +111,6 @@ function MoviesContent() {
   const hasNext = !!moviesData?.next;
   const hasPrevious = !!moviesData?.previous;
   const totalPages = Math.ceil(totalCount / pageSize);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSearch(searchQuery);
-    setPage(1);
-  };
 
   const handleOrderingChange = (newOrdering: string) => {
     setOrdering(newOrdering);
@@ -239,9 +242,7 @@ function MoviesContent() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Movies</h1>
-          <p className="text-muted-foreground">
-            Manage your movie collection
-          </p>
+          <p className="text-muted-foreground">Manage your movie collection</p>
         </div>
         <Button onClick={() => setIsAddMovieDialogOpen(true)}>
           <IconPlus className="mr-2 h-4 w-4" />
@@ -250,15 +251,14 @@ function MoviesContent() {
       </div>
 
       <div className="flex flex-col md:flex-row gap-4 mb-4">
-        <form onSubmit={handleSearch} className="flex gap-2 flex-1">
+        <div className="flex-1">
           <Input
             placeholder="Search movies..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="flex-1"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            className="w-full"
           />
-          <Button type="submit">Search</Button>
-        </form>
+        </div>
         <Select value={ordering} onValueChange={handleOrderingChange}>
           <SelectTrigger className="w-48">
             <SelectValue placeholder="Sort by" />
@@ -364,7 +364,10 @@ function MoviesContent() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="font-medium max-w-56 truncate" title={movie.title}>
+                    <div
+                      className="font-medium max-w-56 truncate"
+                      title={movie.title}
+                    >
                       {movie.title}
                     </div>
                   </TableCell>
@@ -395,7 +398,11 @@ function MoviesContent() {
                   <TableCell>
                     <Badge
                       variant={movie.is_active ? "default" : "secondary"}
-                      className={movie.is_active ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" : ""}
+                      className={
+                        movie.is_active
+                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                          : ""
+                      }
                     >
                       {movie.is_active ? "Active" : "Inactive"}
                     </Badge>

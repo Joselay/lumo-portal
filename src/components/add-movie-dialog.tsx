@@ -46,15 +46,26 @@ import type { CreateMovieRequest } from "@/types/movies";
 import { cn } from "@/lib/utils";
 
 const createMovieSchema = z.object({
-  title: z.string().min(1, "Title is required").max(200, "Title must be less than 200 characters"),
+  title: z
+    .string()
+    .min(1, "Title is required")
+    .max(200, "Title must be less than 200 characters"),
   description: z.string().min(1, "Description is required"),
   duration: z.number().min(1, "Duration must be at least 1 minute"),
   release_date: z.date({
     required_error: "Release date is required",
   }),
   rating: z.number().min(0).max(10).optional(),
-  poster_image: z.string().url("Must be a valid URL").optional().or(z.literal("")),
-  trailer_url: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  poster_image: z
+    .string()
+    .url("Must be a valid URL")
+    .optional()
+    .or(z.literal("")),
+  trailer_url: z
+    .string()
+    .url("Must be a valid URL")
+    .optional()
+    .or(z.literal("")),
   genre_ids: z.array(z.string()).optional(),
   is_active: z.boolean().default(true),
 });
@@ -201,7 +212,7 @@ export function AddMovieDialog({ open, onOpenChange }: AddMovieDialogProps) {
                             variant="outline"
                             className={cn(
                               "w-full pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground"
+                              !field.value && "text-muted-foreground",
                             )}
                           >
                             {field.value ? (
@@ -218,9 +229,7 @@ export function AddMovieDialog({ open, onOpenChange }: AddMovieDialogProps) {
                           mode="single"
                           selected={field.value}
                           onSelect={field.onChange}
-                          disabled={(date) =>
-                            date < new Date("1900-01-01")
-                          }
+                          disabled={(date) => date < new Date("1900-01-01")}
                           initialFocus
                         />
                       </PopoverContent>
@@ -245,7 +254,9 @@ export function AddMovieDialog({ open, onOpenChange }: AddMovieDialogProps) {
                         placeholder="8.5"
                         {...field}
                         onChange={(e) =>
-                          field.onChange(e.target.value ? Number(e.target.value) : undefined)
+                          field.onChange(
+                            e.target.value ? Number(e.target.value) : undefined,
+                          )
                         }
                       />
                     </FormControl>
@@ -318,9 +329,14 @@ export function AddMovieDialog({ open, onOpenChange }: AddMovieDialogProps) {
                                     onCheckedChange={(checked) => {
                                       const currentValue = field.value || [];
                                       return checked
-                                        ? field.onChange([...currentValue, genre.id])
+                                        ? field.onChange([
+                                            ...currentValue,
+                                            genre.id,
+                                          ])
                                         : field.onChange(
-                                            currentValue.filter((value) => value !== genre.id)
+                                            currentValue.filter(
+                                              (value) => value !== genre.id,
+                                            ),
                                           );
                                     }}
                                   />
@@ -346,9 +362,7 @@ export function AddMovieDialog({ open, onOpenChange }: AddMovieDialogProps) {
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base">
-                      Active Status
-                    </FormLabel>
+                    <FormLabel className="text-base">Active Status</FormLabel>
                     <FormLabel className="text-sm text-muted-foreground">
                       Enable this movie to be visible and bookable
                     </FormLabel>
@@ -364,7 +378,12 @@ export function AddMovieDialog({ open, onOpenChange }: AddMovieDialogProps) {
             />
 
             <DialogFooter className="flex gap-2">
-              <Button type="button" variant="outline" onClick={handleCancel} disabled={isSubmitting}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleCancel}
+                disabled={isSubmitting}
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={isSubmitting}>
