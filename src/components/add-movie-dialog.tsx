@@ -37,6 +37,7 @@ import {
 import { useCreateMovie, useGenres } from "@/hooks/use-movies";
 import type { CreateMovieRequest } from "@/types/movies";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const createMovieSchema = z.object({
   title: z
@@ -72,7 +73,7 @@ export function AddMovieDialog({ open, onOpenChange }: AddMovieDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const createMovieMutation = useCreateMovie();
-  const { data: genresData } = useGenres();
+  const { data: genresData, isLoading: isLoadingGenres } = useGenres();
   const genres = genresData?.results || [];
 
   const form = useForm<CreateMovieFormData>({
@@ -295,7 +296,19 @@ export function AddMovieDialog({ open, onOpenChange }: AddMovieDialogProps) {
               />
             </div>
 
-            {genres.length > 0 && (
+            {isLoadingGenres ? (
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-16" />
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="flex items-center space-x-2">
+                      <Skeleton className="h-4 w-4" />
+                      <Skeleton className="h-4 w-16" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : genres.length > 0 ? (
               <FormField
                 control={form.control}
                 name="genre_ids"
@@ -345,7 +358,7 @@ export function AddMovieDialog({ open, onOpenChange }: AddMovieDialogProps) {
                   </FormItem>
                 )}
               />
-            )}
+            ) : null}
 
             <FormField
               control={form.control}
