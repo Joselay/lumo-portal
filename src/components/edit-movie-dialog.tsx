@@ -87,7 +87,7 @@ export function EditMovieDialog({
       title: "",
       description: "",
       duration: 90,
-      release_date: undefined,
+      release_date: new Date(),
       rating: undefined,
       poster_image: "",
       trailer_url: "",
@@ -299,7 +299,7 @@ export function EditMovieDialog({
                         max="10"
                         step="0.1"
                         placeholder="8.5"
-                        {...field}
+                        value={field.value || ""}
                         onChange={(e) =>
                           field.onChange(
                             e.target.value ? Number(e.target.value) : undefined
