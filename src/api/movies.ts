@@ -4,6 +4,7 @@ import type {
   MovieFilters,
   MovieListResponse,
   DeleteMovieResponse,
+  BatchDeleteMoviesResponse,
 } from "@/types/movies";
 
 export const moviesApi = {
@@ -41,5 +42,11 @@ export const moviesApi = {
 
   async deleteMovie(id: string): Promise<DeleteMovieResponse> {
     return api.delete<DeleteMovieResponse>(`/movies/${id}/delete/`);
+  },
+
+  async deleteMovies(ids: string[]): Promise<BatchDeleteMoviesResponse> {
+    return api.post<BatchDeleteMoviesResponse>("/movies/batch-delete/", {
+      movie_ids: ids,
+    });
   },
 };

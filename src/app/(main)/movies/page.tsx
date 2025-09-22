@@ -52,7 +52,7 @@ import {
   MoviesPageSkeleton,
   MoviesPageSkeletonFallback,
 } from "@/components/skeletons/movies-page-skeleton";
-import { useDeleteMovie, useMovies } from "@/hooks/use-movies";
+import { useDeleteMovie, useDeleteMovies, useMovies } from "@/hooks/use-movies";
 import type { Movie, MovieFilters } from "@/types/movies";
 
 function MoviesContent() {
@@ -74,6 +74,7 @@ function MoviesContent() {
   const [selectedMovies, setSelectedMovies] = useState<Set<string>>(new Set());
   const [movieToDelete, setMovieToDelete] = useState<Movie | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isBatchDeleteDialogOpen, setIsBatchDeleteDialogOpen] = useState(false);
 
   useEffect(() => {
     setSearchQuery(search);
@@ -91,6 +92,7 @@ function MoviesContent() {
 
   const { data: moviesData, isLoading, error } = useMovies(filters);
   const deleteMovieMutation = useDeleteMovie();
+  const deleteMoviesMutation = useDeleteMovies();
 
   const movies = moviesData?.results || [];
   const totalCount = moviesData?.count || 0;
@@ -181,6 +183,35 @@ function MoviesContent() {
     setMovieToDelete(null);
   };
 
+  const handleBatchDelete = () => {
+    if (selectedMovies.size === 0) return;
+    setIsBatchDeleteDialogOpen(true);
+  };
+
+  const confirmBatchDelete = async () => {
+    if (selectedMovies.size === 0) return;
+
+    const movieIds = Array.from(selectedMovies);
+    const deletePromise = deleteMoviesMutation.mutateAsync(movieIds);
+
+    toast.promise(deletePromise, {
+      loading: `Deleting ${selectedMovies.size} movie(s)...`,
+      success: (result) => {
+        setIsBatchDeleteDialogOpen(false);
+        setSelectedMovies(new Set());
+        return `${result.deleted_count} movie(s) deleted successfully`;
+      },
+      error: (error) => {
+        console.error("Batch delete error:", error);
+        return "Failed to delete movies. Please try again.";
+      },
+    });
+  };
+
+  const cancelBatchDelete = () => {
+    setIsBatchDeleteDialogOpen(false);
+  };
+
   if (error) {
     return (
       <div className="px-4 lg:px-6">
@@ -226,6 +257,24 @@ function MoviesContent() {
           </SelectContent>
         </Select>
       </div>
+
+      {selectedMovies.size > 0 && (
+        <div className="flex items-center justify-between mb-4 p-3 bg-muted/50 rounded-lg border">
+          <span className="text-sm font-medium">
+            {selectedMovies.size} movie(s) selected
+          </span>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={handleBatchDelete}
+            disabled={deleteMoviesMutation.isPending}
+          >
+            {deleteMoviesMutation.isPending
+              ? "Deleting..."
+              : `Delete Selected (${selectedMovies.size})`}
+          </Button>
+        </div>
+      )}
 
       <div className="overflow-hidden rounded-lg border">
         <Table>
@@ -481,6 +530,35 @@ function MoviesContent() {
               disabled={deleteMovieMutation.isPending}
             >
               {deleteMovieMutation.isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={isBatchDeleteDialogOpen}
+        onOpenChange={setIsBatchDeleteDialogOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Movies</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete {selectedMovies.size} selected
+              movie(s)? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={cancelBatchDelete}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmBatchDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={deleteMoviesMutation.isPending}
+            >
+              {deleteMoviesMutation.isPending
+                ? "Deleting..."
+                : `Delete ${selectedMovies.size} Movie(s)`}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

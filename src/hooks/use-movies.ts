@@ -29,3 +29,15 @@ export const useDeleteMovie = () => {
     },
   });
 };
+
+export const useDeleteMovies = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (movieIds: string[]) => moviesApi.deleteMovies(movieIds),
+    onSuccess: () => {
+      // Invalidate movies queries to refetch the data
+      queryClient.invalidateQueries({ queryKey: ["movies"] });
+    },
+  });
+};

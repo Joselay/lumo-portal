@@ -40,3 +40,9 @@ export interface MovieFilters {
 export interface DeleteMovieResponse {
   message: string;
 }
+
+export interface BatchDeleteMoviesResponse {
+  message: string;
+  deleted_count: number;
+  deleted_movies: string[];
+}
