@@ -405,8 +405,6 @@ function MoviesContent() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-32">
                         <DropdownMenuItem>Edit</DropdownMenuItem>
-                        <DropdownMenuItem>Make a copy</DropdownMenuItem>
-                        <DropdownMenuItem>Favorite</DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           variant="destructive"
