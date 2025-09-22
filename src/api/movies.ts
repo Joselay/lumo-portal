@@ -1,6 +1,5 @@
 import { api } from "@/lib/api";
 import type {
-  Genre,
   GenreListResponse,
   MovieFilters,
   MovieListResponse,
@@ -8,6 +7,8 @@ import type {
   BatchDeleteMoviesResponse,
   CreateMovieRequest,
   CreateMovieResponse,
+  UpdateMovieRequest,
+  UpdateMovieResponse,
 } from "@/types/movies";
 
 export const moviesApi = {
@@ -55,5 +56,12 @@ export const moviesApi = {
 
   async createMovie(data: CreateMovieRequest): Promise<CreateMovieResponse> {
     return api.post<CreateMovieResponse>("/movies/create/", data);
+  },
+
+  async updateMovie(
+    id: string,
+    data: UpdateMovieRequest,
+  ): Promise<UpdateMovieResponse> {
+    return api.patch<UpdateMovieResponse>(`/movies/${id}/update/`, data);
   },
 };

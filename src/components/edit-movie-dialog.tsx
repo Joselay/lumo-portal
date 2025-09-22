@@ -1,11 +1,11 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,11 +34,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useCreateMovie, useGenres } from "@/hooks/use-movies";
-import type { CreateMovieRequest } from "@/types/movies";
+import { useUpdateMovie, useGenres } from "@/hooks/use-movies";
+import type { UpdateMovieRequest, Movie } from "@/types/movies";
 import { cn } from "@/lib/utils";
 
-const createMovieSchema = z.object({
+const updateMovieSchema = z.object({
   title: z
     .string()
     .min(1, "Title is required")
@@ -61,22 +61,27 @@ const createMovieSchema = z.object({
   is_active: z.boolean(),
 });
 
-type CreateMovieFormData = z.infer<typeof createMovieSchema>;
+type UpdateMovieFormData = z.infer<typeof updateMovieSchema>;
 
-interface AddMovieDialogProps {
+interface EditMovieDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  movie: Movie | null;
 }
 
-export function AddMovieDialog({ open, onOpenChange }: AddMovieDialogProps) {
+export function EditMovieDialog({
+  open,
+  onOpenChange,
+  movie,
+}: EditMovieDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const createMovieMutation = useCreateMovie();
+  const updateMovieMutation = useUpdateMovie();
   const { data: genresData } = useGenres();
   const genres = genresData?.results || [];
 
-  const form = useForm<CreateMovieFormData>({
-    resolver: zodResolver(createMovieSchema),
+  const form = useForm<UpdateMovieFormData>({
+    resolver: zodResolver(updateMovieSchema),
     defaultValues: {
       title: "",
       description: "",
@@ -90,30 +95,51 @@ export function AddMovieDialog({ open, onOpenChange }: AddMovieDialogProps) {
     },
   });
 
-  const onSubmit = async (data: CreateMovieFormData) => {
+  useEffect(() => {
+    if (movie && open) {
+      form.reset({
+        title: movie.title,
+        description: movie.description,
+        duration: movie.duration,
+        release_date: parseISO(movie.release_date),
+        rating: movie.rating ? parseFloat(movie.rating) : undefined,
+        poster_image: movie.poster_image || "",
+        trailer_url: "",
+        genre_ids: movie.genres.map((genre) => genre.id),
+        is_active: movie.is_active,
+      });
+    }
+  }, [movie, open, form]);
+
+  const onSubmit = async (data: UpdateMovieFormData) => {
+    if (!movie) return;
+
     setIsSubmitting(true);
 
-    const submitData: CreateMovieRequest = {
+    const submitData: UpdateMovieRequest = {
       ...data,
       release_date: format(data.release_date, "yyyy-MM-dd"),
       poster_image: data.poster_image || undefined,
       trailer_url: data.trailer_url || undefined,
     };
 
-    const createPromise = createMovieMutation.mutateAsync(submitData);
+    const updatePromise = updateMovieMutation.mutateAsync({
+      id: movie.id,
+      data: submitData,
+    });
 
-    toast.promise(createPromise, {
-      loading: "Creating movie...",
-      success: (newMovie) => {
+    toast.promise(updatePromise, {
+      loading: "Updating movie...",
+      success: (updatedMovie) => {
         form.reset();
         onOpenChange(false);
         setIsSubmitting(false);
-        return `"${newMovie.title}" has been created successfully`;
+        return `"${updatedMovie.title}" has been updated successfully`;
       },
       error: (error) => {
         setIsSubmitting(false);
-        console.error("Create movie error:", error);
-        return "Failed to create movie. Please check your inputs and try again.";
+        console.error("Update movie error:", error);
+        return "Failed to update movie. Please check your inputs and try again.";
       },
     });
   };
@@ -123,13 +149,15 @@ export function AddMovieDialog({ open, onOpenChange }: AddMovieDialogProps) {
     onOpenChange(false);
   };
 
+  if (!movie) return null;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add New Movie</DialogTitle>
+          <DialogTitle>Edit Movie</DialogTitle>
           <DialogDescription>
-            Create a new movie entry. All required fields must be filled.
+            Update the movie details. All required fields must be filled.
           </DialogDescription>
         </DialogHeader>
 
@@ -203,7 +231,7 @@ export function AddMovieDialog({ open, onOpenChange }: AddMovieDialogProps) {
                             variant="outline"
                             className={cn(
                               "w-full pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground",
+                              !field.value && "text-muted-foreground"
                             )}
                           >
                             {field.value ? (
@@ -246,7 +274,7 @@ export function AddMovieDialog({ open, onOpenChange }: AddMovieDialogProps) {
                         {...field}
                         onChange={(e) =>
                           field.onChange(
-                            e.target.value ? Number(e.target.value) : undefined,
+                            e.target.value ? Number(e.target.value) : undefined
                           )
                         }
                       />
@@ -326,8 +354,8 @@ export function AddMovieDialog({ open, onOpenChange }: AddMovieDialogProps) {
                                           ])
                                         : field.onChange(
                                             currentValue.filter(
-                                              (value) => value !== genre.id,
-                                            ),
+                                              (value) => value !== genre.id
+                                            )
                                           );
                                     }}
                                   />
@@ -378,7 +406,7 @@ export function AddMovieDialog({ open, onOpenChange }: AddMovieDialogProps) {
                 Cancel
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Creating..." : "Create Movie"}
+                {isSubmitting ? "Updating..." : "Update Movie"}
               </Button>
             </DialogFooter>
           </form>

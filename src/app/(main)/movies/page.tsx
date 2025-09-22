@@ -55,22 +55,23 @@ import {
   MoviesPageSkeletonFallback,
 } from "@/components/skeletons/movies-page-skeleton";
 import { AddMovieDialog } from "@/components/add-movie-dialog";
+import { EditMovieDialog } from "@/components/edit-movie-dialog";
 import { useDeleteMovie, useDeleteMovies, useMovies } from "@/hooks/use-movies";
 import type { Movie, MovieFilters } from "@/types/movies";
 
 function MoviesContent() {
   const [search, setSearch] = useQueryState(
     "search",
-    parseAsString.withDefault("")
+    parseAsString.withDefault(""),
   );
   const [ordering, setOrdering] = useQueryState(
     "ordering",
-    parseAsString.withDefault("-release_date")
+    parseAsString.withDefault("-release_date"),
   );
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
   const [pageSize, setPageSize] = useQueryState(
     "page_size",
-    parseAsInteger.withDefault(10)
+    parseAsInteger.withDefault(10),
   );
 
   const [searchInput, setSearchInput] = useState(search);
@@ -80,6 +81,8 @@ function MoviesContent() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isBatchDeleteDialogOpen, setIsBatchDeleteDialogOpen] = useState(false);
   const [isAddMovieDialogOpen, setIsAddMovieDialogOpen] = useState(false);
+  const [isEditMovieDialogOpen, setIsEditMovieDialogOpen] = useState(false);
+  const [movieToEdit, setMovieToEdit] = useState<Movie | null>(null);
 
   useEffect(() => {
     if (debouncedSearch !== search) {
@@ -99,7 +102,7 @@ function MoviesContent() {
       page,
       page_size: pageSize,
     }),
-    [search, ordering, page, pageSize]
+    [search, ordering, page, pageSize],
   );
 
   const { data: moviesData, isLoading, error } = useMovies(filters);
@@ -157,6 +160,11 @@ function MoviesContent() {
   const handleDeleteMovie = (movie: Movie) => {
     setMovieToDelete(movie);
     setIsDeleteDialogOpen(true);
+  };
+
+  const handleEditMovie = (movie: Movie) => {
+    setMovieToEdit(movie);
+    setIsEditMovieDialogOpen(true);
   };
 
   const confirmDeleteMovie = async () => {
@@ -431,7 +439,11 @@ function MoviesContent() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-32">
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleEditMovie(movie)}
+                        >
+                          Edit
+                        </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           variant="destructive"
@@ -592,6 +604,12 @@ function MoviesContent() {
       <AddMovieDialog
         open={isAddMovieDialogOpen}
         onOpenChange={setIsAddMovieDialogOpen}
+      />
+
+      <EditMovieDialog
+        open={isEditMovieDialogOpen}
+        onOpenChange={setIsEditMovieDialogOpen}
+        movie={movieToEdit}
       />
     </div>
   );

@@ -68,3 +68,17 @@ export interface CreateMovieRequest {
 }
 
 export interface CreateMovieResponse extends Movie {}
+
+export interface UpdateMovieRequest {
+  title?: string;
+  description?: string;
+  duration?: number;
+  release_date?: string;
+  rating?: number;
+  poster_image?: string;
+  trailer_url?: string;
+  genre_ids?: string[];
+  is_active?: boolean;
+}
+
+export interface UpdateMovieResponse extends Movie {}
