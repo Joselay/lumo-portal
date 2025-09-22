@@ -198,9 +198,7 @@ function MoviesContent() {
               <TableHead>Duration</TableHead>
               <TableHead>Release Date</TableHead>
               <TableHead>Rating</TableHead>
-              <TableHead className="w-16">Trailer</TableHead>
               <TableHead>Genres</TableHead>
-              <TableHead>Status</TableHead>
               <TableHead className="w-16"></TableHead>
             </TableRow>
           </TableHeader>
@@ -208,7 +206,7 @@ function MoviesContent() {
             {movies.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={11}
+                  colSpan={9}
                   className="text-center py-8 text-muted-foreground"
                 >
                   No movies found
@@ -277,27 +275,6 @@ function MoviesContent() {
                     )}
                   </TableCell>
                   <TableCell>
-                    {movie.trailer_url ? (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 w-8 p-0"
-                        asChild
-                      >
-                        <a
-                          href={movie.trailer_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          title="Watch Trailer"
-                        >
-                          <IconPlayerPlay className="h-4 w-4" />
-                        </a>
-                      </Button>
-                    ) : (
-                      <span className="text-muted-foreground text-xs">—</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
                     <div className="flex flex-wrap gap-1">
                       {movie.genres.slice(0, 2).map((genre) => (
                         <Badge
@@ -314,11 +291,6 @@ function MoviesContent() {
                         </Badge>
                       )}
                     </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="text-xs">
-                      Active
-                    </Badge>
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>

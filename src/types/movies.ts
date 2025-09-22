@@ -11,8 +11,7 @@ export interface Movie {
   duration_formatted: string;
   release_date: string;
   rating: string;
-  poster_image: string | null;
-  trailer_url: string | null;
+  poster_image: string;
   genres: Genre[];
 }
 
