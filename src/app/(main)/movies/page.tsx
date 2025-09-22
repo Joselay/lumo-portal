@@ -154,21 +154,26 @@ function MoviesContent() {
   const confirmDeleteMovie = async () => {
     if (!movieToDelete) return;
 
-    try {
-      await deleteMovieMutation.mutateAsync(movieToDelete.id);
-      toast.success(`"${movieToDelete.title}" has been deleted successfully`);
-      setIsDeleteDialogOpen(false);
-      setMovieToDelete(null);
-      // Remove from selected movies if it was selected
-      setSelectedMovies((prev) => {
-        const newSet = new Set(prev);
-        newSet.delete(movieToDelete.id);
-        return newSet;
-      });
-    } catch (error) {
-      toast.error("Failed to delete movie. Please try again.");
-      console.error("Delete movie error:", error);
-    }
+    const deletePromise = deleteMovieMutation.mutateAsync(movieToDelete.id);
+
+    toast.promise(deletePromise, {
+      loading: `Deleting "${movieToDelete.title}"...`,
+      success: () => {
+        setIsDeleteDialogOpen(false);
+        setMovieToDelete(null);
+        // Remove from selected movies if it was selected
+        setSelectedMovies((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(movieToDelete.id);
+          return newSet;
+        });
+        return `"${movieToDelete.title}" has been deleted successfully`;
+      },
+      error: (error) => {
+        console.error("Delete movie error:", error);
+        return "Failed to delete movie. Please try again.";
+      },
+    });
   };
 
   const cancelDeleteMovie = () => {
