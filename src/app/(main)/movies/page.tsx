@@ -308,7 +308,7 @@ function MoviesContent() {
                 </div>
               </TableHead>
               <TableHead className="w-16">Poster</TableHead>
-              <TableHead className="w-40">Title</TableHead>
+              <TableHead className="w-56">Title</TableHead>
               <TableHead>Description</TableHead>
               <TableHead>Duration</TableHead>
               <TableHead>Release Date</TableHead>
@@ -364,7 +364,7 @@ function MoviesContent() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="font-medium max-w-40 truncate" title={movie.title}>
+                    <div className="font-medium max-w-56 truncate" title={movie.title}>
                       {movie.title}
                     </div>
                   </TableCell>
