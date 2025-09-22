@@ -1,6 +1,7 @@
 import { api } from "@/lib/api";
 import type {
   GenreListResponse,
+  Movie,
   MovieFilters,
   MovieListResponse,
   DeleteMovieResponse,
@@ -26,6 +27,9 @@ export const moviesApi = {
     if (filters?.search) {
       params.set("search", filters.search);
     }
+    if (filters?.is_active !== undefined) {
+      params.set("is_active", filters.is_active.toString());
+    }
     if (filters?.ordering) {
       params.set("ordering", filters.ordering);
     }
@@ -42,6 +46,10 @@ export const moviesApi = {
 
   async getGenres(): Promise<GenreListResponse> {
     return api.get<GenreListResponse>("/movies/genres/");
+  },
+
+  async getMovie(id: string): Promise<Movie> {
+    return api.get<Movie>(`/movies/${id}/`);
   },
 
   async deleteMovie(id: string): Promise<DeleteMovieResponse> {

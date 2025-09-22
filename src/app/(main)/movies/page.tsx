@@ -56,7 +56,7 @@ import {
 } from "@/components/skeletons/movies-page-skeleton";
 import { AddMovieDialog } from "@/components/add-movie-dialog";
 import { EditMovieDialog } from "@/components/edit-movie-dialog";
-import { useDeleteMovie, useDeleteMovies, useMovies } from "@/hooks/use-movies";
+import { useDeleteMovie, useDeleteMovies, useMovies, useGenres } from "@/hooks/use-movies";
 import type { Movie, MovieFilters } from "@/types/movies";
 
 function MoviesContent() {
@@ -82,7 +82,7 @@ function MoviesContent() {
   const [isBatchDeleteDialogOpen, setIsBatchDeleteDialogOpen] = useState(false);
   const [isAddMovieDialogOpen, setIsAddMovieDialogOpen] = useState(false);
   const [isEditMovieDialogOpen, setIsEditMovieDialogOpen] = useState(false);
-  const [movieToEdit, setMovieToEdit] = useState<Movie | null>(null);
+  const [movieToEdit, setMovieToEdit] = useState<string | null>(null);
 
   useEffect(() => {
     if (debouncedSearch !== search) {
@@ -108,6 +108,9 @@ function MoviesContent() {
   const { data: moviesData, isLoading, error } = useMovies(filters);
   const deleteMovieMutation = useDeleteMovie();
   const deleteMoviesMutation = useDeleteMovies();
+
+  // Pre-fetch genres for Add/Edit dialogs
+  useGenres();
 
   const movies = moviesData?.results || [];
   const totalCount = moviesData?.count || 0;
@@ -163,7 +166,7 @@ function MoviesContent() {
   };
 
   const handleEditMovie = (movie: Movie) => {
-    setMovieToEdit(movie);
+    setMovieToEdit(movie.id);
     setIsEditMovieDialogOpen(true);
   };
 
@@ -397,14 +400,7 @@ function MoviesContent() {
                     )}
                   </TableCell>
                   <TableCell>
-                    <Badge
-                      variant={movie.is_active ? "default" : "secondary"}
-                      className={
-                        movie.is_active
-                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                          : ""
-                      }
-                    >
+                    <Badge variant="outline">
                       {movie.is_active ? "Active" : "Inactive"}
                     </Badge>
                   </TableCell>
@@ -608,8 +604,13 @@ function MoviesContent() {
 
       <EditMovieDialog
         open={isEditMovieDialogOpen}
-        onOpenChange={setIsEditMovieDialogOpen}
-        movie={movieToEdit}
+        onOpenChange={(open) => {
+          setIsEditMovieDialogOpen(open);
+          if (!open) {
+            setMovieToEdit(null);
+          }
+        }}
+        movieId={movieToEdit}
       />
     </div>
   );

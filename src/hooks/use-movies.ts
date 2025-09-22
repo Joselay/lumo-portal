@@ -14,11 +14,21 @@ export const useMovies = (filters?: MovieFilters) => {
   });
 };
 
-export const useGenres = () => {
+export const useGenres = (options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: ["genres"],
     queryFn: () => moviesApi.getGenres(),
     staleTime: 30 * 60 * 1000,
+    enabled: options?.enabled ?? true,
+  });
+};
+
+export const useMovie = (id: string) => {
+  return useQuery({
+    queryKey: ["movie", id],
+    queryFn: () => moviesApi.getMovie(id),
+    enabled: !!id,
+    staleTime: 5 * 60 * 1000,
   });
 };
 

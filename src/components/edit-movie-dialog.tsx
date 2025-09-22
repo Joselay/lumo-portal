@@ -34,7 +34,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useUpdateMovie, useGenres } from "@/hooks/use-movies";
+import { useUpdateMovie, useGenres, useMovie } from "@/hooks/use-movies";
 import type { UpdateMovieRequest, Movie } from "@/types/movies";
 import { cn } from "@/lib/utils";
 
@@ -66,18 +66,19 @@ type UpdateMovieFormData = z.infer<typeof updateMovieSchema>;
 interface EditMovieDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  movie: Movie | null;
+  movieId: string | null;
 }
 
 export function EditMovieDialog({
   open,
   onOpenChange,
-  movie,
+  movieId,
 }: EditMovieDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const updateMovieMutation = useUpdateMovie();
   const { data: genresData } = useGenres();
+  const { data: movie, isLoading: isLoadingMovie, error: movieError } = useMovie(movieId || "");
   const genres = genresData?.results || [];
 
   const form = useForm<UpdateMovieFormData>({
@@ -96,7 +97,7 @@ export function EditMovieDialog({
   });
 
   useEffect(() => {
-    if (movie && open) {
+    if (movie && open && !isLoadingMovie) {
       form.reset({
         title: movie.title,
         description: movie.description,
@@ -104,12 +105,12 @@ export function EditMovieDialog({
         release_date: parseISO(movie.release_date),
         rating: movie.rating ? parseFloat(movie.rating) : undefined,
         poster_image: movie.poster_image || "",
-        trailer_url: "",
+        trailer_url: movie.trailer_url || "",
         genre_ids: movie.genres.map((genre) => genre.id),
         is_active: movie.is_active,
       });
     }
-  }, [movie, open, form]);
+  }, [movie, open, form, isLoadingMovie]);
 
   const onSubmit = async (data: UpdateMovieFormData) => {
     if (!movie) return;
@@ -149,7 +150,25 @@ export function EditMovieDialog({
     onOpenChange(false);
   };
 
-  if (!movie) return null;
+  if (!movieId) return null;
+
+  if (movieError) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Error Loading Movie</DialogTitle>
+            <DialogDescription>
+              Failed to load movie details. Please try again.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={() => onOpenChange(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -160,6 +179,15 @@ export function EditMovieDialog({
             Update the movie details. All required fields must be filled.
           </DialogDescription>
         </DialogHeader>
+
+        {isLoadingMovie ? (
+          <div className="flex items-center justify-center py-8">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Loading movie details...</p>
+            </div>
+          </div>
+        ) : (
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -411,6 +439,7 @@ export function EditMovieDialog({
             </DialogFooter>
           </form>
         </Form>
+        )}
       </DialogContent>
     </Dialog>
   );

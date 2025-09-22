@@ -19,6 +19,7 @@ export interface Movie {
   release_date: string;
   rating: string;
   poster_image: string;
+  trailer_url?: string;
   genres: Genre[];
   is_active: boolean;
 }
@@ -34,6 +35,7 @@ export interface MovieFilters {
   genres?: string[];
   release_date?: string;
   search?: string;
+  is_active?: boolean;
   ordering?:
     | "release_date"
     | "-release_date"
