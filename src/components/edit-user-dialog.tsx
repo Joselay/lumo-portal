@@ -170,7 +170,6 @@ export function EditUserDialog({
       submitData.preferred_language = data.preferred_language;
     }
 
-
     const originalAvatarUrl = user.customer_profile?.avatar_url || "";
     const newAvatarUrl = data.avatar_url || "";
     if (newAvatarUrl !== originalAvatarUrl) {
@@ -381,7 +380,7 @@ export function EditUserDialog({
                             variant="outline"
                             className={cn(
                               "w-full pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground"
+                              !field.value && "text-muted-foreground",
                             )}
                           >
                             {field.value ? (
@@ -451,7 +450,6 @@ export function EditUserDialog({
                     </FormItem>
                   )}
                 />
-
               </div>
 
               <DialogFooter className="flex gap-2">

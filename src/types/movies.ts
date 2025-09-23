@@ -3,11 +3,48 @@ export interface Genre {
   name: string;
 }
 
+export interface GenreDetail {
+  id: string;
+  name: string;
+  movies_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface GenreListResponse {
   count: number;
   next: string | null;
   previous: string | null;
-  results: Genre[];
+  results: GenreDetail[];
+}
+
+export interface GenreFilters {
+  search?: string;
+  ordering?:
+    | "name"
+    | "-name"
+    | "created_at"
+    | "-created_at"
+    | "movies_count"
+    | "-movies_count";
+  page?: number;
+  page_size?: number;
+}
+
+export interface CreateGenreRequest {
+  name: string;
+}
+
+export interface CreateGenreResponse extends Genre {}
+
+export interface UpdateGenreRequest {
+  name?: string;
+}
+
+export interface UpdateGenreResponse extends Genre {}
+
+export interface DeleteGenreResponse {
+  message: string;
 }
 
 export interface Movie {

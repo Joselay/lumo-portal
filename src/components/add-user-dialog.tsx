@@ -383,7 +383,6 @@ export function AddUserDialog({ open, onOpenChange }: AddUserDialogProps) {
                   </FormItem>
                 )}
               />
-
             </div>
 
             <DialogFooter className="flex gap-2">

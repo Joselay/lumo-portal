@@ -240,9 +240,7 @@ function UsersContent() {
     if (diffInHours < 1) {
       const diffInMinutes = Math.floor(diffInHours * 60);
       return (
-        <span>
-          {diffInMinutes < 1 ? 'Just now' : `${diffInMinutes}m ago`}
-        </span>
+        <span>{diffInMinutes < 1 ? "Just now" : `${diffInMinutes}m ago`}</span>
       );
     } else if (diffInHours < 24) {
       return (
@@ -250,7 +248,8 @@ function UsersContent() {
           {Math.floor(diffInHours)}h ago
         </span>
       );
-    } else if (diffInHours < 168) { // Within a week
+    } else if (diffInHours < 168) {
+      // Within a week
       const diffInDays = Math.floor(diffInHours / 24);
       return (
         <span className="text-orange-600 dark:text-orange-400">
@@ -355,14 +354,18 @@ function UsersContent() {
                   />
                 </div>
               </TableHead>
-              <TableHead className="w-16 hidden sm:table-cell">Avatar</TableHead>
+              <TableHead className="w-16 hidden sm:table-cell">
+                Avatar
+              </TableHead>
               <TableHead className="w-32">Username</TableHead>
               <TableHead className="w-48 hidden md:table-cell">Name</TableHead>
               <TableHead className="hidden lg:table-cell">Email</TableHead>
               <TableHead className="w-32 hidden xl:table-cell">Phone</TableHead>
               <TableHead>Role</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead className="w-24 hidden lg:table-cell">Points</TableHead>
+              <TableHead className="w-24 hidden lg:table-cell">
+                Points
+              </TableHead>
               <TableHead className="hidden xl:table-cell">Joined</TableHead>
               <TableHead className="hidden md:table-cell">Last Login</TableHead>
               <TableHead className="w-16"></TableHead>
@@ -415,10 +418,11 @@ function UsersContent() {
                   </TableCell>
                   <TableCell>
                     <div className="font-medium max-w-32 truncate">
-                      <div title={user.username}>
-                        {user.username}
-                      </div>
-                      <div className="text-xs text-muted-foreground md:hidden truncate" title={user.email}>
+                      <div title={user.username}>{user.username}</div>
+                      <div
+                        className="text-xs text-muted-foreground md:hidden truncate"
+                        title={user.email}
+                      >
                         {user.email}
                       </div>
                     </div>
@@ -440,7 +444,10 @@ function UsersContent() {
                     </div>
                   </TableCell>
                   <TableCell className="hidden xl:table-cell">
-                    <div className="text-sm truncate" title={user.customer_profile?.phone_number || "No phone"}>
+                    <div
+                      className="text-sm truncate"
+                      title={user.customer_profile?.phone_number || "No phone"}
+                    >
                       {user.customer_profile?.phone_number || (
                         <span className="text-muted-foreground">—</span>
                       )}
@@ -465,7 +472,9 @@ function UsersContent() {
                       <span className="text-muted-foreground text-sm">—</span>
                     )}
                   </TableCell>
-                  <TableCell className="hidden xl:table-cell">{formatDate(user.date_joined)}</TableCell>
+                  <TableCell className="hidden xl:table-cell">
+                    {formatDate(user.date_joined)}
+                  </TableCell>
                   <TableCell className="hidden md:table-cell">
                     {formatLastLogin(user.last_login)}
                   </TableCell>
