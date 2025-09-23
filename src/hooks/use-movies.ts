@@ -17,7 +17,7 @@ export const useMovies = (filters?: MovieFilters) => {
 export const useGenres = (options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: ["genres"],
-    queryFn: () => moviesApi.getGenres({}),
+    queryFn: () => moviesApi.getGenres({ page_size: 100 }),
     staleTime: 30 * 60 * 1000,
     enabled: options?.enabled ?? true,
   });
