@@ -39,6 +39,7 @@ export const useDeleteMovie = () => {
     mutationFn: (movieId: string) => moviesApi.deleteMovie(movieId),
     onSuccess: (_, movieId) => {
       queryClient.invalidateQueries({ queryKey: ["movies"] });
+      queryClient.invalidateQueries({ queryKey: ["genres"] });
       queryClient.removeQueries({ queryKey: ["movie", movieId] });
     },
   });
@@ -51,6 +52,7 @@ export const useDeleteMovies = () => {
     mutationFn: (movieIds: string[]) => moviesApi.deleteMovies(movieIds),
     onSuccess: (_, movieIds) => {
       queryClient.invalidateQueries({ queryKey: ["movies"] });
+      queryClient.invalidateQueries({ queryKey: ["genres"] });
       movieIds.forEach((movieId) => {
         queryClient.removeQueries({ queryKey: ["movie", movieId] });
       });
@@ -65,6 +67,7 @@ export const useCreateMovie = () => {
     mutationFn: (data: CreateMovieRequest) => moviesApi.createMovie(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["movies"] });
+      queryClient.invalidateQueries({ queryKey: ["genres"] });
     },
   });
 };
@@ -77,6 +80,7 @@ export const useUpdateMovie = () => {
       moviesApi.updateMovie(id, data),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ["movies"] });
+      queryClient.invalidateQueries({ queryKey: ["genres"] });
       queryClient.invalidateQueries({ queryKey: ["movie", id] });
     },
   });

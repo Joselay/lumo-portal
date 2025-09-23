@@ -47,9 +47,12 @@ export const usersApi = {
   },
 
   async deleteUsers(ids: number[]): Promise<BatchDeleteUsersResponse> {
-    return api.post<BatchDeleteUsersResponse>("/auth/admin/users/batch-delete/", {
-      user_ids: ids,
-    });
+    return api.post<BatchDeleteUsersResponse>(
+      "/auth/admin/users/batch-delete/",
+      {
+        user_ids: ids,
+      },
+    );
   },
 
   async createUser(data: CreateUserRequest): Promise<CreateUserResponse> {

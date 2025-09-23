@@ -201,7 +201,8 @@ function GenresContent() {
     }
   };
 
-  const isAllSelected = selectedGenres.size === genres.length && genres.length > 0;
+  const isAllSelected =
+    selectedGenres.size === genres.length && genres.length > 0;
   const isSomeSelected =
     selectedGenres.size > 0 && selectedGenres.size < genres.length;
 
@@ -453,7 +454,8 @@ function GenresContent() {
             ) : (
               <span>
                 Showing {(page - 1) * pageSize + 1} to{" "}
-                {Math.min(page * pageSize, totalCount)} of {totalCount} genre(s).
+                {Math.min(page * pageSize, totalCount)} of {totalCount}{" "}
+                genre(s).
               </span>
             )}
           </div>
