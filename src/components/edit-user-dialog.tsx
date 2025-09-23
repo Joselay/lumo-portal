@@ -136,20 +136,75 @@ export function EditUserDialog({
   }, [user, form]);
 
   const onSubmit = async (data: UpdateUserFormData) => {
-    if (!userId) return;
+    if (!userId || !user) return;
 
     setIsSubmitting(true);
 
-    const submitData: UpdateUserRequest = {
-      ...data,
-      first_name: data.first_name || undefined,
-      last_name: data.last_name || undefined,
-      phone_number: data.phone_number || undefined,
-      date_of_birth: data.date_of_birth
-        ? format(data.date_of_birth, "yyyy-MM-dd")
-        : undefined,
-      avatar_url: data.avatar_url || undefined,
-    };
+    const submitData: UpdateUserRequest = {};
+
+    if (data.username !== user.username) {
+      submitData.username = data.username;
+    }
+    if (data.email !== user.email) {
+      submitData.email = data.email;
+    }
+    if (data.first_name !== (user.first_name || "")) {
+      submitData.first_name = data.first_name || undefined;
+    }
+    if (data.last_name !== (user.last_name || "")) {
+      submitData.last_name = data.last_name || undefined;
+    }
+    if (data.is_active !== user.is_active) {
+      submitData.is_active = data.is_active;
+    }
+    if (data.is_staff !== user.is_staff) {
+      submitData.is_staff = data.is_staff;
+    }
+    if (data.is_superuser !== user.is_superuser) {
+      submitData.is_superuser = data.is_superuser;
+    }
+
+    const originalPhoneNumber = user.customer_profile?.phone_number || "";
+    const newPhoneNumber = data.phone_number || "";
+    if (newPhoneNumber !== originalPhoneNumber) {
+      submitData.phone_number = newPhoneNumber || undefined;
+    }
+
+    const originalDateOfBirth = user.customer_profile?.date_of_birth
+      ? format(new Date(user.customer_profile.date_of_birth), "yyyy-MM-dd")
+      : "";
+    const newDateOfBirth = data.date_of_birth
+      ? format(data.date_of_birth, "yyyy-MM-dd")
+      : "";
+    if (newDateOfBirth !== originalDateOfBirth) {
+      submitData.date_of_birth = newDateOfBirth || undefined;
+    }
+
+    const originalPreferredLanguage =
+      user.customer_profile?.preferred_language || "en";
+    if (data.preferred_language !== originalPreferredLanguage) {
+      submitData.preferred_language = data.preferred_language;
+    }
+
+    const originalReceiveNotifications =
+      user.customer_profile?.receive_booking_notifications ?? true;
+    if (data.receive_booking_notifications !== originalReceiveNotifications) {
+      submitData.receive_booking_notifications =
+        data.receive_booking_notifications;
+    }
+
+    const originalAvatarUrl = user.customer_profile?.avatar_url || "";
+    const newAvatarUrl = data.avatar_url || "";
+    if (newAvatarUrl !== originalAvatarUrl) {
+      submitData.avatar_url = newAvatarUrl || undefined;
+    }
+
+    if (Object.keys(submitData).length === 0) {
+      setIsSubmitting(false);
+      toast.info("No changes detected");
+      onOpenChange(false);
+      return;
+    }
 
     const updatePromise = updateUserMutation.mutateAsync({
       id: userId,
@@ -348,7 +403,7 @@ export function EditUserDialog({
                             variant="outline"
                             className={cn(
                               "w-full pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground",
+                              !field.value && "text-muted-foreground"
                             )}
                           >
                             {field.value ? (
