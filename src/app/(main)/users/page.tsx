@@ -228,6 +228,44 @@ function UsersContent() {
     return new Date(dateString).toLocaleDateString();
   };
 
+  const formatLastLogin = (dateString: string | null) => {
+    if (!dateString) {
+      return <span className="text-muted-foreground">Never</span>;
+    }
+
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
+
+    if (diffInHours < 1) {
+      const diffInMinutes = Math.floor(diffInHours * 60);
+      return (
+        <span>
+          {diffInMinutes < 1 ? 'Just now' : `${diffInMinutes}m ago`}
+        </span>
+      );
+    } else if (diffInHours < 24) {
+      return (
+        <span className="text-blue-600 dark:text-blue-400">
+          {Math.floor(diffInHours)}h ago
+        </span>
+      );
+    } else if (diffInHours < 168) { // Within a week
+      const diffInDays = Math.floor(diffInHours / 24);
+      return (
+        <span className="text-orange-600 dark:text-orange-400">
+          {diffInDays}d ago
+        </span>
+      );
+    } else {
+      return (
+        <span className="text-muted-foreground" title={date.toLocaleString()}>
+          {date.toLocaleDateString()}
+        </span>
+      );
+    }
+  };
+
   const getFullName = (user: User) => {
     const fullName = `${user.first_name} ${user.last_name}`.trim();
     return fullName || user.username;
@@ -409,11 +447,7 @@ function UsersContent() {
                   </TableCell>
                   <TableCell>{formatDate(user.date_joined)}</TableCell>
                   <TableCell>
-                    {user.last_login ? (
-                      formatDate(user.last_login)
-                    ) : (
-                      <span className="text-muted-foreground">Never</span>
-                    )}
+                    {formatLastLogin(user.last_login)}
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>
