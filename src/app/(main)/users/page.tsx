@@ -355,14 +355,16 @@ function UsersContent() {
                   />
                 </div>
               </TableHead>
-              <TableHead className="w-16">Avatar</TableHead>
+              <TableHead className="w-16 hidden sm:table-cell">Avatar</TableHead>
               <TableHead className="w-32">Username</TableHead>
-              <TableHead className="w-48">Name</TableHead>
-              <TableHead>Email</TableHead>
+              <TableHead className="w-48 hidden md:table-cell">Name</TableHead>
+              <TableHead className="hidden lg:table-cell">Email</TableHead>
+              <TableHead className="w-32 hidden xl:table-cell">Phone</TableHead>
               <TableHead>Role</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Joined</TableHead>
-              <TableHead>Last Login</TableHead>
+              <TableHead className="w-24 hidden lg:table-cell">Points</TableHead>
+              <TableHead className="hidden xl:table-cell">Joined</TableHead>
+              <TableHead className="hidden md:table-cell">Last Login</TableHead>
               <TableHead className="w-16"></TableHead>
             </TableRow>
           </TableHeader>
@@ -370,7 +372,7 @@ function UsersContent() {
             {users.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={10}
+                  colSpan={12}
                   className="text-center py-8 text-muted-foreground"
                 >
                   No users found
@@ -394,7 +396,7 @@ function UsersContent() {
                       />
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden sm:table-cell">
                     <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center overflow-hidden">
                       {user.customer_profile?.avatar_url ? (
                         <Image
@@ -412,14 +414,16 @@ function UsersContent() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div
-                      className="font-medium max-w-32 truncate"
-                      title={user.username}
-                    >
-                      {user.username}
+                    <div className="font-medium max-w-32 truncate">
+                      <div title={user.username}>
+                        {user.username}
+                      </div>
+                      <div className="text-xs text-muted-foreground md:hidden truncate" title={user.email}>
+                        {user.email}
+                      </div>
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden md:table-cell">
                     <div
                       className="max-w-48 truncate"
                       title={getFullName(user)}
@@ -427,12 +431,19 @@ function UsersContent() {
                       {getFullName(user)}
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden lg:table-cell">
                     <div
                       className="text-sm text-muted-foreground truncate"
                       title={user.email}
                     >
                       {user.email}
+                    </div>
+                  </TableCell>
+                  <TableCell className="hidden xl:table-cell">
+                    <div className="text-sm truncate" title={user.customer_profile?.phone_number || "No phone"}>
+                      {user.customer_profile?.phone_number || (
+                        <span className="text-muted-foreground">—</span>
+                      )}
                     </div>
                   </TableCell>
                   <TableCell>
@@ -445,8 +456,17 @@ function UsersContent() {
                       {user.is_active ? "Active" : "Inactive"}
                     </Badge>
                   </TableCell>
-                  <TableCell>{formatDate(user.date_joined)}</TableCell>
-                  <TableCell>
+                  <TableCell className="hidden lg:table-cell">
+                    {user.customer_profile?.loyalty_points !== undefined ? (
+                      <Badge variant="secondary" className="text-xs">
+                        {user.customer_profile.loyalty_points} pts
+                      </Badge>
+                    ) : (
+                      <span className="text-muted-foreground text-sm">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="hidden xl:table-cell">{formatDate(user.date_joined)}</TableCell>
+                  <TableCell className="hidden md:table-cell">
                     {formatLastLogin(user.last_login)}
                   </TableCell>
                   <TableCell>
