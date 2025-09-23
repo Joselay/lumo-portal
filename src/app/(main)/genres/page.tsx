@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -51,7 +52,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { AddGenreDialog } from "@/components/add-genre-dialog";
 import { EditGenreDialog } from "@/components/edit-genre-dialog";
-import { useGenres, useDeleteGenre } from "@/hooks/use-genres";
+import { useGenres, useDeleteGenre, useDeleteGenres } from "@/hooks/use-genres";
 import type { GenreDetail, GenreFilters } from "@/types/movies";
 
 function GenresPageSkeleton({ rows = 10 }: { rows?: number }) {
@@ -69,6 +70,7 @@ function GenresPageSkeleton({ rows = 10 }: { rows?: number }) {
         <Table>
           <TableHeader className="bg-muted">
             <TableRow>
+              <TableHead className="w-12"></TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Movies Count</TableHead>
               <TableHead>Created</TableHead>
@@ -79,6 +81,9 @@ function GenresPageSkeleton({ rows = 10 }: { rows?: number }) {
           <TableBody>
             {Array.from({ length: rows }).map((_, i) => (
               <TableRow key={i}>
+                <TableCell>
+                  <Skeleton className="h-4 w-4 mx-auto" />
+                </TableCell>
                 <TableCell>
                   <Skeleton className="h-5 w-32" />
                 </TableCell>
@@ -120,8 +125,10 @@ function GenresContent() {
 
   const [searchInput, setSearchInput] = useState(search);
   const [debouncedSearch] = useDebounce(searchInput, 300);
+  const [selectedGenres, setSelectedGenres] = useState<Set<string>>(new Set());
   const [genreToDelete, setGenreToDelete] = useState<GenreDetail | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isBatchDeleteDialogOpen, setIsBatchDeleteDialogOpen] = useState(false);
   const [isAddGenreDialogOpen, setIsAddGenreDialogOpen] = useState(false);
   const [isEditGenreDialogOpen, setIsEditGenreDialogOpen] = useState(false);
   const [genreToEdit, setGenreToEdit] = useState<string | null>(null);
@@ -149,6 +156,7 @@ function GenresContent() {
 
   const { data: genresData, isLoading, error } = useGenres(filters);
   const deleteGenreMutation = useDeleteGenre();
+  const deleteGenresMutation = useDeleteGenres();
 
   const genres = genresData?.results || [];
   const totalCount = genresData?.count || 0;
@@ -173,6 +181,30 @@ function GenresContent() {
   const canPreviousPage = hasPrevious;
   const canNextPage = hasNext;
 
+  const toggleGenreSelection = (genreId: string) => {
+    setSelectedGenres((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(genreId)) {
+        newSet.delete(genreId);
+      } else {
+        newSet.add(genreId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleAllGenresSelection = () => {
+    if (selectedGenres.size === genres.length && genres.length > 0) {
+      setSelectedGenres(new Set());
+    } else {
+      setSelectedGenres(new Set(genres.map((genre) => genre.id)));
+    }
+  };
+
+  const isAllSelected = selectedGenres.size === genres.length && genres.length > 0;
+  const isSomeSelected =
+    selectedGenres.size > 0 && selectedGenres.size < genres.length;
+
   const handleDeleteGenre = (genre: GenreDetail) => {
     setGenreToDelete(genre);
     setIsDeleteDialogOpen(true);
@@ -193,11 +225,16 @@ function GenresContent() {
       success: () => {
         setIsDeleteDialogOpen(false);
         setGenreToDelete(null);
+        setSelectedGenres((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(genreToDelete.id);
+          return newSet;
+        });
         return `"${genreToDelete.name}" has been deleted successfully`;
       },
       error: (error) => {
         console.error("Delete genre error:", error);
-        return "Failed to delete genre. Please try again.";
+        return error?.message || "Failed to delete genre. Please try again.";
       },
     });
   };
@@ -205,6 +242,35 @@ function GenresContent() {
   const cancelDeleteGenre = () => {
     setIsDeleteDialogOpen(false);
     setGenreToDelete(null);
+  };
+
+  const handleBatchDelete = () => {
+    if (selectedGenres.size === 0) return;
+    setIsBatchDeleteDialogOpen(true);
+  };
+
+  const confirmBatchDelete = async () => {
+    if (selectedGenres.size === 0) return;
+
+    const genreIds = Array.from(selectedGenres);
+    const deletePromise = deleteGenresMutation.mutateAsync(genreIds);
+
+    toast.promise(deletePromise, {
+      loading: `Deleting ${selectedGenres.size} genre(s)...`,
+      success: (result) => {
+        setIsBatchDeleteDialogOpen(false);
+        setSelectedGenres(new Set());
+        return `${result.deleted_count} genre(s) deleted successfully`;
+      },
+      error: (error) => {
+        console.error("Batch delete error:", error);
+        return error?.message || "Failed to delete genres. Please try again.";
+      },
+    });
+  };
+
+  const cancelBatchDelete = () => {
+    setIsBatchDeleteDialogOpen(false);
   };
 
   if (error) {
@@ -256,10 +322,39 @@ function GenresContent() {
         </Button>
       </div>
 
+      {selectedGenres.size > 0 && (
+        <div className="flex items-center justify-between mb-4 p-3 bg-muted/50 rounded-lg border">
+          <span className="text-sm font-medium">
+            {selectedGenres.size} genre(s) selected
+          </span>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={handleBatchDelete}
+            disabled={deleteGenresMutation.isPending}
+          >
+            {deleteGenresMutation.isPending
+              ? "Deleting..."
+              : `Delete Selected (${selectedGenres.size})`}
+          </Button>
+        </div>
+      )}
+
       <div className="overflow-hidden rounded-lg border">
         <Table>
           <TableHeader className="bg-muted sticky top-0 z-10">
             <TableRow>
+              <TableHead className="w-12">
+                <div className="flex items-center justify-center">
+                  <Checkbox
+                    checked={
+                      isAllSelected || (isSomeSelected && "indeterminate")
+                    }
+                    onCheckedChange={toggleAllGenresSelection}
+                    aria-label="Select all genres"
+                  />
+                </div>
+              </TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Movies Count</TableHead>
               <TableHead>Created</TableHead>
@@ -271,7 +366,7 @@ function GenresContent() {
             {genres.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={5}
+                  colSpan={6}
                   className="text-center py-8 text-muted-foreground"
                 >
                   No genres found
@@ -282,7 +377,19 @@ function GenresContent() {
                 <TableRow
                   key={genre.id}
                   className="hover:bg-muted/50 transition-colors"
+                  data-state={
+                    selectedGenres.has(genre.id) ? "selected" : undefined
+                  }
                 >
+                  <TableCell>
+                    <div className="flex items-center justify-center">
+                      <Checkbox
+                        checked={selectedGenres.has(genre.id)}
+                        onCheckedChange={() => toggleGenreSelection(genre.id)}
+                        aria-label={`Select ${genre.name}`}
+                      />
+                    </div>
+                  </TableCell>
                   <TableCell>
                     <div className="font-medium">{genre.name}</div>
                   </TableCell>
@@ -339,10 +446,16 @@ function GenresContent() {
       {totalCount > 0 && (
         <div className="flex items-center justify-between px-4 mt-4">
           <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
-            <span>
-              Showing {(page - 1) * pageSize + 1} to{" "}
-              {Math.min(page * pageSize, totalCount)} of {totalCount} genre(s).
-            </span>
+            {selectedGenres.size > 0 ? (
+              <span>
+                {selectedGenres.size} of {totalCount} genre(s) selected.
+              </span>
+            ) : (
+              <span>
+                Showing {(page - 1) * pageSize + 1} to{" "}
+                {Math.min(page * pageSize, totalCount)} of {totalCount} genre(s).
+              </span>
+            )}
           </div>
           <div className="flex w-full items-center gap-8 lg:w-fit">
             <div className="hidden items-center gap-2 lg:flex">
@@ -435,6 +548,35 @@ function GenresContent() {
               disabled={deleteGenreMutation.isPending}
             >
               {deleteGenreMutation.isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={isBatchDeleteDialogOpen}
+        onOpenChange={setIsBatchDeleteDialogOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Genres</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete {selectedGenres.size} selected
+              genre(s)? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={cancelBatchDelete}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmBatchDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={deleteGenresMutation.isPending}
+            >
+              {deleteGenresMutation.isPending
+                ? "Deleting..."
+                : `Delete ${selectedGenres.size} Genre(s)`}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

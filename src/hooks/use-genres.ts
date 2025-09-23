@@ -58,3 +58,18 @@ export const useDeleteGenre = () => {
     },
   });
 };
+
+export const useDeleteGenres = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (genreIds: string[]) => moviesApi.deleteGenres(genreIds),
+    onSuccess: (_, genreIds) => {
+      queryClient.invalidateQueries({ queryKey: ["genres"] });
+      // Remove individual genre queries
+      genreIds.forEach((id) => {
+        queryClient.removeQueries({ queryKey: ["genre", id] });
+      });
+    },
+  });
+};

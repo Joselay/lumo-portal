@@ -47,6 +47,12 @@ export interface DeleteGenreResponse {
   message: string;
 }
 
+export interface BatchDeleteGenresResponse {
+  message: string;
+  deleted_count: number;
+  deleted_genres: string[];
+}
+
 export interface Movie {
   id: string;
   title: string;

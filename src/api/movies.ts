@@ -9,6 +9,7 @@ import type {
   UpdateGenreRequest,
   UpdateGenreResponse,
   DeleteGenreResponse,
+  BatchDeleteGenresResponse,
   Movie,
   MovieFilters,
   MovieListResponse,
@@ -89,6 +90,12 @@ export const moviesApi = {
 
   async deleteGenre(id: string): Promise<DeleteGenreResponse> {
     return api.delete<DeleteGenreResponse>(`/movies/genres/${id}/delete/`);
+  },
+
+  async deleteGenres(ids: string[]): Promise<BatchDeleteGenresResponse> {
+    return api.post<BatchDeleteGenresResponse>("/movies/genres/batch-delete/", {
+      genre_ids: ids,
+    });
   },
 
   async getMovie(id: string): Promise<Movie> {

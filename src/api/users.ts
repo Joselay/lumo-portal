@@ -47,18 +47,9 @@ export const usersApi = {
   },
 
   async deleteUsers(ids: number[]): Promise<BatchDeleteUsersResponse> {
-    // Note: Backend doesn't have batch delete, so we'll delete individually
-    const results = await Promise.allSettled(
-      ids.map((id) => api.delete(`/auth/admin/users/${id}/`)),
-    );
-    const deleted_count = results.filter(
-      (r) => r.status === "fulfilled",
-    ).length;
-    return {
-      message: `${deleted_count} users deleted`,
-      deleted_count,
-      deleted_users: ids.slice(0, deleted_count),
-    };
+    return api.post<BatchDeleteUsersResponse>("/auth/admin/users/batch-delete/", {
+      user_ids: ids,
+    });
   },
 
   async createUser(data: CreateUserRequest): Promise<CreateUserResponse> {

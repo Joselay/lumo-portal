@@ -185,7 +185,9 @@ function UsersContent() {
       },
       error: (error) => {
         console.error("Delete user error:", error);
-        return "Failed to delete user. Please try again.";
+        // Extract API error message
+        const apiError = error?.response?.data?.error || error?.message;
+        return apiError || "Failed to delete user. Please try again.";
       },
     });
   };
@@ -215,7 +217,9 @@ function UsersContent() {
       },
       error: (error) => {
         console.error("Batch delete error:", error);
-        return "Failed to delete users. Please try again.";
+        // Extract API error message
+        const apiError = error?.response?.data?.error || error?.message;
+        return apiError || "Failed to delete users. Please try again.";
       },
     });
   };
