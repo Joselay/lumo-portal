@@ -66,12 +66,9 @@ const createUserSchema = z
       .optional()
       .or(z.literal("")),
     is_active: z.boolean(),
-    is_staff: z.boolean(),
-    is_superuser: z.boolean(),
     phone_number: z.string().optional().or(z.literal("")),
     date_of_birth: z.date().optional(),
     preferred_language: z.enum(["en", "es", "fr"]).optional(),
-    receive_booking_notifications: z.boolean(),
     avatar_url: z
       .string()
       .url("Must be a valid URL")
@@ -105,12 +102,9 @@ export function AddUserDialog({ open, onOpenChange }: AddUserDialogProps) {
       first_name: "",
       last_name: "",
       is_active: true,
-      is_staff: false,
-      is_superuser: false,
       phone_number: "",
       date_of_birth: undefined,
       preferred_language: "en",
-      receive_booking_notifications: true,
       avatar_url: "",
     },
   });
@@ -390,70 +384,6 @@ export function AddUserDialog({ open, onOpenChange }: AddUserDialogProps) {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="is_staff"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">Staff Status</FormLabel>
-                      <FormLabel className="text-sm text-muted-foreground">
-                        Grant staff privileges to this user
-                      </FormLabel>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="is_superuser"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">Admin Status</FormLabel>
-                      <FormLabel className="text-sm text-muted-foreground">
-                        Grant admin privileges to this user
-                      </FormLabel>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="receive_booking_notifications"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">
-                        Booking Notifications
-                      </FormLabel>
-                      <FormLabel className="text-sm text-muted-foreground">
-                        Send booking confirmation emails
-                      </FormLabel>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
             </div>
 
             <DialogFooter className="flex gap-2">

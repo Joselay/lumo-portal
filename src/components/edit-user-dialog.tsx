@@ -64,12 +64,9 @@ const updateUserSchema = z.object({
     .optional()
     .or(z.literal("")),
   is_active: z.boolean(),
-  is_staff: z.boolean(),
-  is_superuser: z.boolean(),
   phone_number: z.string().optional().or(z.literal("")),
   date_of_birth: z.date().optional(),
   preferred_language: z.enum(["en", "es", "fr"]).optional(),
-  receive_booking_notifications: z.boolean(),
   avatar_url: z
     .string()
     .url("Must be a valid URL")
@@ -103,12 +100,9 @@ export function EditUserDialog({
       first_name: "",
       last_name: "",
       is_active: true,
-      is_staff: false,
-      is_superuser: false,
       phone_number: "",
       date_of_birth: undefined,
       preferred_language: "en",
-      receive_booking_notifications: true,
       avatar_url: "",
     },
   });
@@ -121,15 +115,11 @@ export function EditUserDialog({
         first_name: user.first_name || "",
         last_name: user.last_name || "",
         is_active: user.is_active,
-        is_staff: user.is_staff,
-        is_superuser: user.is_superuser,
         phone_number: user.customer_profile?.phone_number || "",
         date_of_birth: user.customer_profile?.date_of_birth
           ? new Date(user.customer_profile.date_of_birth)
           : undefined,
         preferred_language: user.customer_profile?.preferred_language || "en",
-        receive_booking_notifications:
-          user.customer_profile?.receive_booking_notifications ?? true,
         avatar_url: user.customer_profile?.avatar_url || "",
       });
     }
@@ -157,12 +147,6 @@ export function EditUserDialog({
     if (data.is_active !== user.is_active) {
       submitData.is_active = data.is_active;
     }
-    if (data.is_staff !== user.is_staff) {
-      submitData.is_staff = data.is_staff;
-    }
-    if (data.is_superuser !== user.is_superuser) {
-      submitData.is_superuser = data.is_superuser;
-    }
 
     const originalPhoneNumber = user.customer_profile?.phone_number || "";
     const newPhoneNumber = data.phone_number || "";
@@ -186,12 +170,6 @@ export function EditUserDialog({
       submitData.preferred_language = data.preferred_language;
     }
 
-    const originalReceiveNotifications =
-      user.customer_profile?.receive_booking_notifications ?? true;
-    if (data.receive_booking_notifications !== originalReceiveNotifications) {
-      submitData.receive_booking_notifications =
-        data.receive_booking_notifications;
-    }
 
     const originalAvatarUrl = user.customer_profile?.avatar_url || "";
     const newAvatarUrl = data.avatar_url || "";
@@ -474,74 +452,6 @@ export function EditUserDialog({
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="is_staff"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-base">
-                          Staff Status
-                        </FormLabel>
-                        <FormLabel className="text-sm text-muted-foreground">
-                          Grant staff privileges to this user
-                        </FormLabel>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="is_superuser"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-base">
-                          Admin Status
-                        </FormLabel>
-                        <FormLabel className="text-sm text-muted-foreground">
-                          Grant admin privileges to this user
-                        </FormLabel>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="receive_booking_notifications"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-base">
-                          Booking Notifications
-                        </FormLabel>
-                        <FormLabel className="text-sm text-muted-foreground">
-                          Send booking confirmation emails
-                        </FormLabel>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
               </div>
 
               <DialogFooter className="flex gap-2">
