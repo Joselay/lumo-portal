@@ -437,7 +437,7 @@ function UsersContent() {
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline">
-                      {user.role === "admin" ? "Admin" : "Customer"}
+                      {user.is_admin ? "Admin" : "Customer"}
                     </Badge>
                   </TableCell>
                   <TableCell>

@@ -10,6 +10,7 @@ export interface User {
   date_joined: string;
   last_login: string | null;
   role: "customer" | "admin";
+  is_admin: boolean;
   customer_profile?: CustomerProfile;
 }
 
